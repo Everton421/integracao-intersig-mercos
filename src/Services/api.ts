@@ -1,10 +1,27 @@
 import axios from "axios";
-/*
-export const api = axios.create(
-    {
-        baseURL:'https://www.bling.com.br/Api/v3/',
-        headers:{
-            
-            'Authorization:  Bearer 4a9de71b8aaf91c8ebbf830888354d5479e83a01'
-        }
-    })*/
+import { TokenModelo } from "../models/token/tokenModelo";
+import { conn_api, database_api } from "../database/databaseConfig";
+
+async  function buscaToken(){
+    const sql = `SELECT * FROM ${database_api}.tokens WHERE id = 1`;
+    return new Promise( async (resolve, reject)=>{
+        await conn_api.query(sql, (err, result) => {
+            if(err){
+                reject(err);
+            }else{
+                resolve(result);
+            }
+    })
+})
+}
+const token =   buscaToken();
+
+
+const url_bling = process.env.BASE_URL
+export const api = axios.create({
+    baseURL: url_bling,
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    }
+});

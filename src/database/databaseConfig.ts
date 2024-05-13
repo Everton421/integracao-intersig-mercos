@@ -19,12 +19,13 @@ import mysql from 'mysql';
             port  = parseInt(portdb);
         }
 
-       export const conn =   mysql.createPool({
+        export const database_api = 'integracao'
+       export const conn_api =   mysql.createPool({
             connectionLimit : 10,
-            host: hostname,
-            user: username,
-            port: port,
-            password: dbpassword,
+            host: 'localhost',
+            user: 'root',
+            port: 3306,
+            password: 'Nileduz',
         })
 
 /*---------------------------------------------------------------------*/ 

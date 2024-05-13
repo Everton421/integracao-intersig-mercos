@@ -22,6 +22,6 @@ export const api = axios.create({
     baseURL: url_bling,
     headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer e67ac9db95a854d413d874c14b713348c130b9cd`
     }
 });

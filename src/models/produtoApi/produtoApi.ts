@@ -19,8 +19,8 @@ export class ProdutoApi{
 
             return new Promise( async (resolve, reject)=>{
                 
-                const { id_bling, codigo_sistema } = value;
-                const sql = ` INSERT INTO ${database_api}.produtos VALUES ('${id_bling}', '${codigo_sistema}', '${dataInsercao}')` 
+                const { id_bling, codigo_sistema , descricao} = value;
+                const sql = ` INSERT INTO ${database_api}.produtos VALUES ('${id_bling}','${descricao}','${codigo_sistema}', '${dataInsercao}')` 
 
                 await conn_api.query(sql, (err, result)=>{
                     if(err){

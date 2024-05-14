@@ -7,21 +7,30 @@ import { ProdutoController } from "./controllers/produtos/ProdutoController";
 
 import { ProdutoApi } from "./models/produtoApi/produtoApi";
 import ConfigApi from "./Services/api";
+import { ProdutoModelo } from "./models/produto/produtoModelo";
+import { conn, db_publico } from "./database/databaseConfig";
 
 const router = Router();
 
-router.get('/',(req,res) =>{
-  
-  return res.json({ok:'true'})
+router.get('/', async (req,res) =>{
 
+   const objProdutos = new ProdutoModelo();
+    const objSincronizados = new ProdutoApi();
+    const sincronizados = await objSincronizados.busca();
+  const produtos = await objProdutos.buscaProdutos(conn, db_publico);
+
+res.render('produtos',{'produtos' : produtos, 'sincronizados':sincronizados})
  })
-     
+
+
+ router.post('/teste',(req,res) =>{
+  console.log(req.body);
+ return  res.json({'msg':"produto enviado com sucesso!"})
+   })
  
  router.get('/teste', verificaToken, async (req, res) => {
           const aux = new  ProdutoController();
           const a = await aux.enviaEstoque();
-
-
 });
 
 

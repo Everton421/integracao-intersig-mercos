@@ -48,7 +48,8 @@ export class ProdutoController {
                         
                                const produtoEnviado = {
                                               id_bling : response.data.data.id,
-                                              codigo_sistema : data.CODIGO
+                                              codigo_sistema : data.CODIGO,
+                                              descricao: data.DESCRICAO
                                                      }
 
                                         try{

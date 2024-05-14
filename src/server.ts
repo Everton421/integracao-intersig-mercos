@@ -4,12 +4,19 @@ import cors from 'cors';
 const https = require('https');
 const fs = require('fs');
 import 'dotenv/config';
-
+import bodyParser from 'body-parser';
+import path from 'path'; 
 
 import { router } from './routes';
 import { conn } from './database/databaseConfig';
 
         const app = express();
+
+        app.set('view engine', 'ejs')
+        app.use(bodyParser.urlencoded({ extended: false }))
+        app.use(bodyParser.json())
+        app.set('views', path.join(__dirname, 'views'));
+        
         app.use(express.json());    
         app.use(router)
         app.use(cors());

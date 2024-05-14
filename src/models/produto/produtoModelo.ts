@@ -2,8 +2,11 @@ import { conn, db_estoque, db_publico, db_vendas } from "../../database/database
 import { ProdutoBling } from "../../interfaces/produtoBling";
 
 export class ProdutoModelo{
-  
+
     async buscaProdutos(conexao:any, publico:any){
+
+
+      
         return new Promise( async (resolve, reject)=>{
             let sql = ` 
                             SELECT * FROM ${publico}.cad_prod WHERE NO_SITE = 'S';
@@ -34,13 +37,8 @@ export class ProdutoModelo{
               resolve(result)
             }
           });
-
-
-         
-
       });
  
-
    }
 
   async buscaEstoqueReal(codigo:number ){
@@ -76,6 +74,25 @@ export class ProdutoModelo{
     })
     })
   }
+
+
+  async buscatabelaDePreco(codigo:number ){
+    return new Promise( (resolve, reject)=>{
+      
+                          
+    const sqlEstoque=` 
+                        `
+    conn.query( sqlEstoque ,(err:any , result:any)=>{
+      if(err){
+        reject(err)
+        console.log('erro ao obter o tabela de preco')
+      }else{
+          resolve(result);
+      }
+    })
+    })
+  }
+
 
 
 }

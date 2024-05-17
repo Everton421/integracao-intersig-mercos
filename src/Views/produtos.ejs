@@ -56,7 +56,7 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
                 
-                    <form class="d-flex" id="no-print" action="/teste" method="post">
+                    <form class="d-flex" id="no-print" action="/api/produtos" method="post">
                      
                             <select id="produto" name="produto" class="form-select" aria-label="Default select example">
                                 <option selected value="*" >enviar todos</option>
@@ -66,12 +66,19 @@
 
                                    <% }) %>
                             </select>
-                            <!-- Adicione campos ocultos para enviar as datas e o vendedor -->
 
+                            <select id="tabela" name="tabela" class="form-select" aria-label="Default select example">
+                                
+                                <% tabelas.forEach( (tabela)=> { %>
+                                    <option selected value="<%= tabela.CODIGO %>"><%= tabela.DESCRICAO %> </option>
+
+                                <% }) %>
+                                
+                            </select>
+                            <!-- Adicione campos ocultos para enviar as datas e o vendedor -->
                         <button class="btn btn-outline-success" type="submit">enviar</button>
                     </form>
 
-            
 
             </div>
         </div>
@@ -86,7 +93,8 @@
         <li class="list-group-item d-flex justify-content-between align-items-start">
           <div class="ms-2 me-auto">
             <div class="fw-bold">id: <%= value.Id_bling%> </div>
-            <!----> <%= value.descricao %>
+            <!----> codigo: <%=value.codigo_sistema%>   
+            <div class="fw-bold"> <%= value.descricao %></div> 
           </div>
         </li>
       

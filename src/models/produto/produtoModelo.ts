@@ -3,15 +3,14 @@ import { ProdutoBling } from "../../interfaces/produtoBling";
 
 export class ProdutoModelo{
 
-    async buscaProdutos(conexao:any, publico:any){
+    async buscaProdutos(){
 
-
-      
         return new Promise( async (resolve, reject)=>{
+          
             let sql = ` 
-                            SELECT * FROM ${publico}.cad_prod WHERE NO_SITE = 'S';
+                            SELECT * FROM ${db_publico}.cad_prod WHERE NO_SITE = 'S';
                             `;
-            await conexao.query(sql, (err:any,result:any)=>{
+            await conn.query(sql, (err:any,result:any)=>{
               if(err){
                 reject(err);
               }else{
@@ -22,18 +21,15 @@ export class ProdutoModelo{
   
      }
 
-     async buscaProduto(conexao:any, publico:any,codigo:number){
+     async buscaProduto(codigo:number){
       return new Promise( async (resolve, reject)=>{
-          let sql = `SELECT * FROM ${publico}.cad_prod WHERE NO_SITE = 'S' AND CODIGO = ${codigo};`;
+          let sql = `SELECT * FROM ${db_publico}.cad_prod WHERE NO_SITE = 'S' AND CODIGO = ${codigo};`;
 
-          await conexao.query(sql, async (err:any,result:any)=>{
+          await conn.query(sql, async (err:any,result:any)=>{
             if(err){
               return reject(err);
             }else{
 //              resolve(result);
-               const saldo:any  = await this.buscaEstoqueReal(codigo);
-              const estoque = { "estoque" : saldo[0].ESTOQUE  }
-             result.push(estoque);
               resolve(result)
             }
           });
@@ -76,13 +72,12 @@ export class ProdutoModelo{
   }
 
 
-  async buscatabelaDePreco(codigo:number ){
-    return new Promise( (resolve, reject)=>{
+  async buscaTabelaDePreco( ){
+    return new Promise( async (resolve, reject)=>{
       
-                          
-    const sqlEstoque=` 
+    const sql=` SELECT * FROM ${db_publico}.tab_precos ORDER BY CODIGO DESC ;
                         `
-    conn.query( sqlEstoque ,(err:any , result:any)=>{
+    await conn.query( sql ,(err:any , result:any)=>{
       if(err){
         reject(err)
         console.log('erro ao obter o tabela de preco')
@@ -93,6 +88,38 @@ export class ProdutoModelo{
     })
   }
 
+async buscaPreco( produto:any, tabela:any ){
+
+  const sql =  ` SELECT pp.PRECO preco from ${db_publico}.prod_tabprecos pp
+                join ${db_publico}.tab_precos tp on tp.codigo = pp.tabela 
+                 where pp.PRODUTO = ${produto} and tp.CODIGO = ${tabela}   
+              ; ` 
+
+  return new Promise( async ( resolve, reject )=>{
+    await conn.query(sql, ( err, result )=>{
+        if(err){
+          reject(err);
+        }else{
+          resolve(result);
+        }
+    })
+  })
+}
+
+  
+
+  async buscaNcm( codigo:any){
+    return new Promise( async (resolve, reject)=>{
+        const sql = `SELECT CODIGO codigo, NCM ncm, COD_CEST cod_cest FROM ${db_publico}.class_fiscal where CODIGO=${codigo};` 
+      await conn.query(sql,(err, result)=>{
+        if(err){
+          reject(err);
+        }else{  
+          resolve(result);
+        }
+      })
+    })
+  }
 
 
 }

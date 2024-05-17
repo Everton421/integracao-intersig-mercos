@@ -32,7 +32,7 @@ export class ProdutoApi{
             })
         }
 
-        async busca(){
+        async buscaTodos(){
             return new Promise( async ( resolve, reject )=>{
                 const sql = ` SELECT * FROM ${database_api}.produtos;`
                 await conn_api.query(sql, (err, result)=>{
@@ -44,5 +44,20 @@ export class ProdutoApi{
                 })
             })
         }
+
+        async busca( produto:any ){
+            return new Promise( async ( resolve, reject )=>{
+                const sql = ` SELECT * FROM ${database_api}.produtos WHERE  codigo_sistema = ${produto} ;`
+                await conn_api.query(sql, (err, result )=>{
+                    if(err){
+                        reject(err);
+                    }else{
+                        resolve(result);
+                    }
+                })
+            })
+        } 
+
+
 
 }

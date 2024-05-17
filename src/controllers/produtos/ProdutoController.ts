@@ -1,4 +1,4 @@
-import { response } from "express";
+import { Response, Request } from "express";
 import { ProdutoModelo } from "../../models/produto/produtoModelo";
 import { conn,db_publico } from "../../database/databaseConfig";
 import { ProdutoBling } from "../../interfaces/produtoBling";
@@ -6,65 +6,142 @@ import ConfigApi from "../../Services/api";
 import { ProdutoApi } from "../../models/produtoApi/produtoApi";
 // import { api } from "../../Services/api";
 
-
 export class ProdutoController {
 
 
     
-    async enviaProduto() {
+    async enviaProduto( req:Request, res:Response) {
+       const  produtoSelecionado:any =  req.body.produto;
+       const tabelaSelecionada:any = req.body.tabela; 
+
         const  api:any = new ConfigApi();
         const produto = new ProdutoModelo();
         const produtoApi = new ProdutoApi();
 
-        const produtos: any = await produto.buscaProdutos(conn, db_publico);
 
+       
 
         function delay(ms: number) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
             async function envio(){
+                let produtos:any =[];
+
+                if(produtoSelecionado === '*' ){
+                     produtos  = await produto.buscaProdutos();
+                     console.log(produtoSelecionado)
+                }else{
+                     produtos  = await produto.buscaProduto(produtoSelecionado);
+                }
+        
                 for (const data of produtos ){
 
-                    const aux: ProdutoBling = {
+
+                    const produtoSincronizado:any = await produtoApi.busca(data.CODIGO);
+
+    
+
+                            let preco:any = 0
+                        try{
+                                const result:any = await produto.buscaPreco(data.CODIGO, tabelaSelecionada); 
+                                    if(result[0].preco !== undefined || result[0].preco !== null){
+                                        preco = result[0].preco
+                                        //console.log(preco)
+                                    }
+                            }catch(err){ console.log("erro ao obter tabela de preco para o produto: " +data.CODIGO)}
+
+
+                    //busca ncm
+                    let queryNcm:any =[];
+                         try{
+                             queryNcm  = await produto.buscaNcm(data.CLASS_FISCAL);
+                    }catch(err){ console.log('erro ao obter o ncm do produto')}
+                     const { ncm, cod_cest} = queryNcm[0];
+
+
+                    const post: ProdutoBling = {
                                     codigo: data.CODIGO,
                                     nome: data.DESCRICAO,
                                     descricaoCurta: data.DESCR_CURTA,
                                     descricaoComplementar: data.DESCR_LONGA,
                                     tipo: 'P',
                                     unidade: 'un',
-                                    preco: 1,
+                                    preco: preco,
                                     pesoBruto: 1,
                                     formato: 'S',
                                     largura: data.LARGURA,
                                     altura: data.ALTURA,
                                     profundidade: data.COMPRIMENTO,
                                     dimensoes: { altura: data.ALTURA, largura: data.LARGURA, profundidade: data.COMPRIMENTO },
-                                    tributacao: { cest: '', ncm: '' }
+                                    tributacao: { cest: cod_cest, ncm: ncm, }
                                 };
 
-                                try {
-                                     const response = await api.config.post('/produtos', aux);
-                        
-                               const produtoEnviado = {
-                                              id_bling : response.data.data.id,
-                                              codigo_sistema : data.CODIGO,
-                                              descricao: data.DESCRICAO
-                                                     }
+//atualiza caso ja tenha sido enviado 
+                 if(produtoSincronizado.length > 0 ){
+                                    
+                                    //return console.log('produto ja foi enviado ')
+                                    const id = produtoSincronizado[0].Id_bling;
 
-                                        try{
-                                          let prod =  await produtoApi.inserir(produtoEnviado);
-                                             console.log(prod) ;    
-                                            }catch(error){ console.log("erro ao cadastrar no banoc api "+error)}
-                                    } catch (error: any) {
-                                        if (error.response) {
-                                            console.log('Status:', error.response.status);
-                                            console.log('Data:', error.response.data.error);
-                                        }
-                                 }
+                                    const put:any = { 
+                                    id: id,
+                                    codigo:data.CODIGO,
+                                    nome: data.DESCRICAO,
+                                    descricaoCurta: data.DESCR_CURTA,
+                                    descricaoComplementar: data.DESCR_LONGA,
+                                    tipo: 'P',
+                                    unidade: 'un',
+                                    preco: preco,
+                                    pesoBruto: 1,
+                                    formato: 'S',
+                                    largura: data.LARGURA,
+                                    altura: data.ALTURA,
+                                    profundidade: data.COMPRIMENTO,
+                                    dimensoes: { altura: data.ALTURA, largura: data.LARGURA, profundidade: data.COMPRIMENTO },
+                                    tributacao: { cest: cod_cest, ncm: ncm, }
+                                    }
+                                                try{
+                                                    const response = await api.config.put(`/produtos/${id}`,put)
+                                                    console.log(response.status,"atualizado com sucesso!")
+                                                    
+                                                }catch(err){}
+                   }else{
+
+                                    try {
+                                        const response = await api.config.post('/produtos', post);
+                                        //console.log(post);
+                                         const produtoEnviado = {
+                                                id_bling : response.data.data.id,
+                                                codigo_sistema : data.CODIGO,
+                                                 descricao: data.DESCRICAO
+                                                         }
+                                                
+                                             try{
+                                                      let prod =  await produtoApi.inserir(produtoEnviado);
+                                               }catch(error){ 
+                                                 console.log("erro ao cadastrar no banco da api "+error)
+                                             }
+                                              if(response.status ===200 || response.status ===201   && produtoSelecionado !== '*'){
+                                                  //return console.log( "produto enviado com sucesso");
+                                                  return res.json({"msg":"produto enviado com sucesso!"});
+                                                }   
+
+                                        } catch (error: any) {
+                                          if (error.response) {
+                                            //console.log('Status:', error.response.status);
+                                            const v:any = error.response.data.error.fields[0].msg
+                                            
+                                            if( produtoSelecionado !== '*' ){
+                                              return res.json({"msg":v});
+                                            }
+                                              //return console.log(v) ;
+                                            }
+                                     }
+                          }
                                  
                     await delay(3000);
                 }
+
                 return ;
             }
 
@@ -75,6 +152,7 @@ export class ProdutoController {
             }
 
     }
+
 
     async enviaEstoque(){
         function delay(ms: number) {
@@ -95,7 +173,7 @@ export class ProdutoController {
             const idDeposito = deposito.data.data[0].id;
 
 
-                const produtosEnviados:any = await produtoApi.busca();
+                const produtosEnviados:any = await produtoApi.buscaTodos();
 
                 for(const data of produtosEnviados){
                           const resultSaldo:any = await  produto.buscaEstoqueReal(data.codigo_sistema);
@@ -129,9 +207,6 @@ export class ProdutoController {
        }catch( error ){
                  console.log(error )
                  }
-                 
-
-
 
     }
 

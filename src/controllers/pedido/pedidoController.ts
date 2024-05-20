@@ -18,8 +18,10 @@ async buscaPedidosBling(){
         let dadosPedidos;
 
         try{
-                 dadosPedidos = await api.config.get('/pedidos/vendas');
+        dadosPedidos = await api.config.get('/pedidos/vendas');
         }catch(err) { throw err }
+
+
         const arr = dadosPedidos.data.data
  
        for( const data of arr ){
@@ -30,24 +32,38 @@ async buscaPedidosBling(){
            
                
            try{
-            clientvalidacao = await  clientERP.validaCadastro(cpfClientBling);
+            clientvalidacao = await  clientERP.buscaPorCnpj(cpfClientBling);
+         //   console.log(clientvalidacao);
            }catch(err) { console.log("erro ao validar  cliente") }
 
-         
 
-             if(clientvalidacao === true){
-                 console.log( 'cliente encontrado no sistema');
-                
+           let dadosClientBling:any;
+           let dadosClientErp:any;
+
+             if(clientvalidacao.length > 0 ){
+             //    console.log( 'cliente encontrado no sistema');
+                 dadosClientErp = clientvalidacao[0].CODIGO;
              }else{
-                 let dadosClientBling:any;
+
                  try{
                      dadosClientBling = await api.config.get(`/contatos/${clientPedidoBling}`);
+                        
                      try{
                          const resposta = dadosClientBling.data.data
                              console.log('cadastrando cnpj: ', cpfClientBling )
                                 try{
-                                 const respostaCadastro:any = await clientERP.cadastrarClientErp(resposta);
-                                  console.log(respostaCadastro)
+                                 const clientCadastradoErp:any = await clientERP.cadastrarClientErp(resposta);
+                                 
+                                 dadosClientErp = clientCadastradoErp.insertId;
+                                  
+                                 if(dadosClientErp > 0 ){
+                                    const dadosCadastroClientApi = { clientPedidoBling , dadosClientErp, cpfClientBling }
+                                    try{
+                                    const respostaClienteApi = await clientApi.cadastrarClientApi(dadosCadastroClientApi); 
+                                        //console.log(respostaClienteApi)
+                                }catch(err){ console.log("erro ao inserir clienteApi "+err); }
+                                }
+
                                 }catch(err){
                                     console.log('erro ao cadastrar o cliente')
                                 }
@@ -57,8 +73,14 @@ async buscaPedidosBling(){
                  }catch(err){console.log(err);}
             
              }
+             //console.log(dadosClientErp);
+
+             
+
+
 
        }
+
 
 }
 

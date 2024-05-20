@@ -10,10 +10,7 @@ export class ClienteErp {
                 if (err) {
                     reject(err);
                 } else {    
-                    if(result.length > 0){
                         resolve(result);
-
-                    }
                 }
             });
         });

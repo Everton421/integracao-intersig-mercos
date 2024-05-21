@@ -26,11 +26,13 @@ async buscaPedidosBling(){
  
        for( const data of arr ){
 
-            let clientPedidoBling = data.contato.id;
-              let cpfClientBling = data.contato.numeroDocumento;
+               let clientPedidoBling = data.contato.id;
+               let cpfClientBling = data.contato.numeroDocumento;
                let clientvalidacao:any =[];
+               let idPedidoBling = data.id; 
            
                
+    //       inicio validação do cliente 
            try{
             clientvalidacao = await  clientERP.buscaPorCnpj(cpfClientBling);
          //   console.log(clientvalidacao);
@@ -73,9 +75,26 @@ async buscaPedidosBling(){
                  }catch(err){console.log(err);}
             
              }
-             //console.log(dadosClientErp);
+ //fim da validação do cliente 
+           
+           
+                let pedidoResponse:any;
+             try{
+
+                const reponse  = await api.config.get(`/pedidos/vendas/${idPedidoBling}`);
+                pedidoResponse = reponse.data.data;
+                console.log(pedidoResponse)
+
+             }catch(err) {
+                console.log(err,'erro ao buscar pedido no bling ')
+             }
+           
+         //    console.log(idPedidoBling);
 
              
+                let itensPedidoResponse = pedidoResponse.itens;
+
+             console.log(itensPedidoResponse)
 
 
 

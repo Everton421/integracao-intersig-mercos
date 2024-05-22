@@ -19,45 +19,63 @@ export async function verificaToken(req: Request, res: Response, next: NextFunct
     const tokenBD:any = await objToken.buscaToken(); // token registrado no banco 
 
             if (!tokenBD[0] || tokenBD[0] === undefined ) { // Se não houver token registrado, redireciona para a rota de autorizaçao 
+                console.log(tokenBD[0]);
                 res.redirect(urlAuthorize)
             } else {
                 
                 const verificacao = objToken.verificaExpiracao(tokenBD[0]);
-                    if( verificacao === false){
-                        const refreshToken = tokenBD[0].refresh_token;
-                            
-                        //se nao existir refresh token redireciona para autorização do aplicativo
-                        if(!refreshToken || refreshToken === undefined ){
-                                 return   res.redirect(urlAuthorize)
-                                }else{
-                                        const base64Credentials = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
-                                            const headers = {
-                                                'Host': 'www.bling.com.br',
-                                                'Content-Type': 'application/x-www-form-urlencoded',
-                                                'Accept': '1.0',
-                                                'Authorization': `Basic ${base64Credentials}`
-                                            }
+                if (verificacao === false) {
+                    const refreshToken = tokenBD[0].refresh_token;
+                       
+                    // Se não existir refresh token, redireciona para autorização do aplicativo
+                    if (tokenBD.length > 0 )  {
+                        console.log('Atualizando token');
+                        const base64Credentials = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
+                        const headers = {
+                            'Host': 'www.bling.com.br',
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'Accept': '1.0',
+                            'Authorization': `Basic ${base64Credentials}`
+                        }
+                
+                        const data = new URLSearchParams();
+                        data.append('grant_type', 'refresh_token');
+                        data.append('refresh_token', refreshToken);
+                
+                        try {
+                              const responseToken = await axios.post(`${url_bling}/oauth/token`, data, { headers });
+                              if(responseToken.token === undefined || responseToken.token === null ){
+                                console.log('erro ao oter um novo token utilizando o refres token')
+                              }
 
-                                            const data = new URLSearchParams();
-                                            data.append('grant_type', 'refresh_token');
-                                            data.append('refresh_token', refreshToken);
+                              if (responseToken.status === 200) {
+                              console.log("Refresh token obtido", responseToken)
+                                  objToken.insereToken(responseToken.data, database_api);
 
-                                            try {
-                                                const responseToken = await axios.post(url_bling+data, { headers })
-                                
-                                                if (responseToken.status === 200) {
-                                                    objToken.insereToken(responseToken.data, database_api);
-                                                    next();
-                                                }
+                                  next();
+                            }
+                        
+                        } catch (err) {
+                            if (err.response) {
+                                // O servidor respondeu com um status diferente de 2xx
+                                console.log("Erro ao obter o token:", err.response.data);
+                            } else if (err.request) {
+                                // A solicitação foi feita, mas não recebeu resposta
+                                console.log("Erro de solicitação:", err.request);
+                            } else {
+                                // Ocorreu um erro ao configurar a solicitação
+                                console.log("Erro ao configurar a solicitação:", err.message);
+                            }
+                            res.redirect(urlAuthorize);
+                        }
+                    } else {
+                        return res.redirect(urlAuthorize);
 
-                                            } catch (err) {
-                                                res.redirect(urlAuthorize)
-                                            
-                                            }
-                                    }
-                    }else{
-                        next();
+                       
                     }
+                } else {
+                    next();
+                }
 
             }
 

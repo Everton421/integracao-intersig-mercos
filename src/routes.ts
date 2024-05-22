@@ -16,6 +16,10 @@ import { pedidoController } from "./controllers/pedido/pedidoController";
 import { clienteApi } from "./models/clienteApi/clienteApi";
 
 const router = Router();
+router.get('/', async (req,res) =>{
+  res.render('index');
+})
+
 
 router.get('/produtos', async (req,res) =>{
 

@@ -112,7 +112,7 @@ async cadastrarClientErp(json: any) {
         rg,
         orgaoEmissor,
         email,
-        endereco // Corrigido
+        endereco 
     } = json;
 
     const  { geral:{ cep, bairro, municipio, uf, numero, complemento,  } }  = endereco; // Corrigido

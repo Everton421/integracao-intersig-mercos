@@ -57,7 +57,19 @@ export class ProdutoController {
                          try{
                              queryNcm  = await produto.buscaNcm(data.CLASS_FISCAL);
                     }catch(err){ console.log('erro ao obter o ncm do produto')}
-                     const { ncm, cod_cest} = queryNcm[0];
+
+                    let ncm 
+                        let cod_cest 
+
+                        
+                    if( queryNcm.length > 0){
+                        ncm    = queryNcm[0].ncm;
+                        cod_cest   = queryNcm[0].cod_cest;
+                        }else{
+                            ncm    =  null ;
+                            cod_cest   =  null;
+                        }
+                        
 
 
                     const post: ProdutoBling = {
@@ -128,7 +140,7 @@ export class ProdutoController {
 
                                         } catch (error: any) {
                                           if (error.response) {
-                                            //console.log('Status:', error.response.status);
+                                            console.log('Status:', error.response.data);
                                             const v:any = error.response.data.error.fields[0].msg
                                             
                                             if( produtoSelecionado !== '*' ){
@@ -177,7 +189,12 @@ export class ProdutoController {
 
                 for(const data of produtosEnviados){
                           const resultSaldo:any = await  produto.buscaEstoqueReal(data.codigo_sistema);
-                          const saldoReal = resultSaldo[0].ESTOQUE;
+                          let saldoReal;
+                          if(resultSaldo.length > 0  ){
+                            saldoReal = resultSaldo[0].ESTOQUE;
+                          }else{
+                            saldoReal = 0;
+                          }
                         
                         let estoque=  {
                             "produto": {

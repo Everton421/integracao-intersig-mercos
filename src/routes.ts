@@ -14,6 +14,8 @@ import { ClienteErp } from "./models/cliente/clienteErp";
 import { ClienteController } from "./controllers/cliente/ClienteController";
 import { pedidoController } from "./controllers/pedido/pedidoController";
 import { clienteApi } from "./models/clienteApi/clienteApi";
+import { PedidoApi } from "./models/pedidoApi/pedidoApi";
+import { apiController } from "./controllers/apiController/apiController";
 
 const router = Router();
 router.get('/', async (req,res) =>{
@@ -32,7 +34,7 @@ router.get('/produtos', async (req,res) =>{
 res.render('produtos',{'produtos' : produtos, 'sincronizados':sincronizados, 'tabelas': tabelas});
  })
 
- router.post('/api/produtos', new ProdutoController().enviaProduto)
+ router.post('/api/produtos', verificaToken, new ProdutoController().enviaProduto)
 
 
   router.get('/callback', async (req, res, next) => {
@@ -41,7 +43,16 @@ res.render('produtos',{'produtos' : produtos, 'sincronizados':sincronizados, 'ta
   });
 
 
-router.get('/teste',verificaToken, new pedidoController().buscaPedidosBling) 
+router.get('/pedidos',verificaToken, new pedidoController().buscaPedidosBling) 
+router.get('/estoque',verificaToken, new ProdutoController().enviaEstoque) 
+
+
+
+router.get('/teste3', async (req,res)=>{
+  const obj  = new apiController();
+  let aux = await obj.main();
+  
+})
 
 router.get('/teste2',verificaToken, async (req,res)=>{
   const aux = new ClienteErp();

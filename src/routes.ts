@@ -16,14 +16,23 @@ import { pedidoController } from "./controllers/pedido/pedidoController";
 import { clienteApi } from "./models/clienteApi/clienteApi";
 import { PedidoApi } from "./models/pedidoApi/pedidoApi";
 import { apiController } from "./controllers/apiController/apiController";
+import { configApi } from "./models/configApi/config";
 
 const router = Router();
-router.get('/', async (req,res) =>{
+
+
+router.get('/', verificaToken,async (req,res) =>{
   res.render('index');
 })
 
+router.get('/config', async  ( req, res )=>{
+  const configApi = new apiController();
+  const data = await configApi.buscaConfig();
+  //console.log(data)
+  res.render('config', {'config':data});
+})
 
-router.get('/produtos', async (req,res) =>{
+router.get('/produtos', verificaToken , async (req,res) =>{
 
    const objProdutos = new ProdutoModelo();
     const objSincronizados = new ProdutoApi();
@@ -48,9 +57,13 @@ router.get('/estoque',verificaToken, new ProdutoController().enviaEstoque)
 
 
 
-router.get('/teste3', async (req,res)=>{
-  const obj  = new apiController();
-  let aux = await obj.main();
+router.post('/teste', async (req,res)=>{
+  const au = JSON.stringify(req.body);
+  //console.log(req.body)
+  const obj = new configApi();
+  let a = await obj.atualizaDados(req.body) 
+
+
   
 })
 

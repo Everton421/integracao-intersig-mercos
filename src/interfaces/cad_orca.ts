@@ -34,6 +34,7 @@ export interface cad_orca{
     BASE_ICMS_UF_DEST:number,
     FORMA_PAGAMENTO:number
     produtos:pro_orca[]
+    parcelas:any
 }
 /**
   status,  

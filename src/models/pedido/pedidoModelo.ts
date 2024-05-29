@@ -1,3 +1,4 @@
+import ConfigApi from "../../Services/api";
 import { conn, conn_api, db_vendas } from "../../database/databaseConfig";
 import { cad_orca } from "../../interfaces/cad_orca";
 import { PedidoApi } from "../pedidoApi/pedidoApi";
@@ -20,6 +21,7 @@ export class pedidoErp{
 				let desconto = prod.desconto;
 				let unidade = prod.unidade;
 
+				
 				 
 
 			 const sql =
@@ -53,6 +55,7 @@ export class pedidoErp{
 				   if(error){
 						   reject(" erro ao inserir produto do orcamento "+ error);
 				   }else{
+					resolve(resultado)
 					   console.log(`produto  inserido com sucesso`);
 				   }
 				})
@@ -70,6 +73,33 @@ export class pedidoErp{
 
 async cadastraParcelasDoPedido( parcelas:any , codigoPedido:any){
 
+
+		return new Promise ( async(resolve, reject)=>{
+		for(const parcela of parcelas){
+		let i =1;
+			
+			const sql =
+			` INSERT INTO ${db_vendas}.par_orca (orcamento, parcela, valor, vencimento, tipo_receb) VALUES 
+			('${codigoPedido}','${i}',${parcela.valor}, '${parcela.dataVencimento}', '1');
+			`
+			await conn.query(sql, (err,result)=>{
+				if(err){
+					//reject(err);
+					console.log(err);
+				}else{
+					console.log(result)
+				//	resolve(result)
+				}
+			})
+
+			if(i === parcelas.length){
+				return;
+			}
+			i++;
+	 }
+
+		})
+		
 }
 
 async cadastrarPedido( pedido:any ){
@@ -110,12 +140,20 @@ async cadastrarPedido( pedido:any ){
   PESO_LIQUIDO,
   BASE_ICMS_UF_DEST,
   FORMA_PAGAMENTO,
-  produtos
+  produtos,
+ parcelas
 } = pedido;
 
-	
-		let codigoPedido:any;
 
+	let totalProdutos = 0; // Inicializando a variável totalProdutos
+
+			produtos.forEach((iten:any) => {
+			  totalProdutos += (iten.valor * iten.quantidade) ; // - iten.desconto;
+			});
+
+			console.log(totalProdutos); // Exibindo o total dos produtos
+
+let codigoPedido: any;
 	return new Promise( async (resolve, reject )=>{
 			const sql = 
 			` 
@@ -168,18 +206,29 @@ async cadastrarPedido( pedido:any ){
 
 					 let json = { "Id_bling":codigo_site , "codigo_sistema":codigoPedido };
  
-                         try{  
-                              const result = await pedidoApi.cadastraPedidoApi(json)
-                            }catch(err){
-                                
-                                console.log(" erro ao cadastrar na tabela da api"+ err);
-                        
-                            }
+                        // try{  
+                        //      const result = await pedidoApi.cadastraPedidoApi(json)
+                        //    }catch(err){
+                        //        
+                        //        console.log(" erro ao cadastrar na tabela da api"+ err);
+                        //    }
+						let resultProdutos;
+				try{
+					resultProdutos =	await this.cadastraProdutosDoPedido(produtos,codigoPedido)
 
+				}catch(err){console.log(err)}
+				
+				if(resultProdutos){
+					try{
+						await this.cadastraParcelasDoPedido(parcelas,codigoPedido)
 
+					}catch(err){console.log("ocorreu um erro ao tentar gravar as parcelas")}
+				
+				}
+				 
+						
+						}
 
-							await this.cadastraProdutosDoPedido(produtos,codigoPedido)
-			}
 
 		})
 	})
@@ -188,38 +237,6 @@ async cadastrarPedido( pedido:any ){
 
 }
 
-/**
- INSERT INTO pro_orca (orcamento, sequencia, produto, 
-	grade, padronizado, complemento,
-	 unidade, item_unid, just_ipi,
-	  just_icms, just_subst, quantidade, unitario, tabela, preco_tabela, CUSTO_MEDIO, ULT_CUSTO, FRETE, ipi, desconto)
-														VALUES ('$codigoOrcamento',
-														'$i',
-														'$itens->produto_codigo',               
-														'0',             
-														'0',    
-														'',           
-														'$tp_unid',                        
-														'1',
-														'0',
-														'0',
-														'0',
-														'$itens->quantidade',
-														'$itens->preco_tabela',
-														'$tabprecoVend ',
-														'$valor_prod',
-														'$custo_medio',
-														'$ultimo_custo',
-														'$pedidoFrete',
-														'$ipi',
-														'$descontoTotal')
-
-
-
-
-
-
- */
 
 
 

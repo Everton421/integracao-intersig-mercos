@@ -32,7 +32,7 @@ export class configApi{
         return new Promise ( async (resolve,reject ) =>{
             const sql = `
                 UPDATE ${database_api}.config_bling set  importar_pedidos = ${importar_pedidos} , 
-                enviar_estoque =  ${enviar_estoque}  , enviar_preco = ${enviar_preco}    where id = 1;
+                enviar_estoque =  ${enviar_estoque}  , enviar_precos = ${enviar_preco}    where id = 1;
             `
             console.log(sql)
            

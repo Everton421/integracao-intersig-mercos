@@ -104,6 +104,9 @@ async buscaPedidosBling(){
              let outrasDespesas       = pedidoResponse.outrasDespesas;
              let itensPedido          = pedidoResponse.itens;
              let codigPedidoCadastrado:any;
+             let desconto             = pedidoResponse.desconto.valor
+             let valorFrete           = pedidoResponse.transporte.frete
+             let parcelasPedido       =pedidoResponse.parcelas
            try{
                 const response:any  = await pedidoApi.validaPedido(idPedidoResponse);
                 if(response.length > 0 ){
@@ -126,10 +129,10 @@ async buscaPedidosBling(){
                     status:0,
                     cliente: dadosClientErp,
                     total_produtos:totalProdutos,
-                    desc_prod:0,
+                    desc_prod:desconto,
                     total_geral:total,
                     data_pedido:dataPedidoResponse,
-                    valor_frete:0,
+                    valor_frete:valorFrete,
                     situacao:'EA',
                     data_cadastro:data_cadastro,
                     hora_cadastro:hora_cadastro,
@@ -154,7 +157,8 @@ async buscaPedidosBling(){
                     PESO_LIQUIDO:0,
                     BASE_ICMS_UF_DEST:0,
                     FORMA_PAGAMENTO:0,
-                    produtos:itensPedido
+                    produtos:itensPedido,
+                    parcelas: parcelasPedido
                 }
 
                
@@ -163,12 +167,7 @@ async buscaPedidosBling(){
                  try{
                      const result:any  = await objPedidoErp.cadastrarPedido(data)
                      codigoPedidoErp = result.insertId;
-
-                      //  const aux:any  = await objPedidoErp.cadastraProdutosDoPedido( itensPedido, codigoPedidoErp );
-
                  }catch(err){ console.log(err);}
- 
-                 
 
 
                 }else{

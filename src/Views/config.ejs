@@ -52,6 +52,9 @@
           </div>
         </div>
       </nav>
+      
+      <div class="container">
+
       <form action="/teste" method="post">
         <% config.forEach((v) => { %>
             <ul class="list-group">
@@ -71,7 +74,7 @@
                 
                 <li class="list-group-item">
                     <div class="form-check">
-                        <input class="form-check-input me-1" type="checkbox" name="enviar_preco" value="<%= v.enviar_preco %>" <% if (parseInt(v.enviar_preco) === 1) { %> checked <% } %> aria-label="...">
+                        <input class="form-check-input me-1" type="checkbox" name="enviar_precos" value="<%= v.enviar_precos %>" <% if (parseInt(v.enviar_preco) === 1) { %> checked <% } %> aria-label="...">
                         <label class="form-check-label">Enviar Preço</label>
                     </div>
                 </li>
@@ -79,6 +82,7 @@
         <% }) %>
         <button type="submit">Enviar</button>
     </form>
+</div>
     
     
     

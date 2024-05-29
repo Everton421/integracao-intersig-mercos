@@ -1,4 +1,4 @@
-import { conn_api, database_api } from "../../database/databaseConfig";
+import { conn, conn_api, database_api } from "../../database/databaseConfig";
 
 export class configApi{
 
@@ -7,7 +7,7 @@ export class configApi{
         let { 
              importar_pedidos,
               enviar_estoque,
-               enviar_preco 
+               enviar_precos 
             } = json; 
             
 
@@ -22,19 +22,28 @@ export class configApi{
             }else{
                 enviar_estoque = parseInt(enviar_estoque)
             }
-            if(!enviar_preco){
-                enviar_preco = 0
+            if(!enviar_precos){
+                enviar_precos = 0
             }else{
-                enviar_preco = parseInt(enviar_preco);
+                enviar_precos = parseInt(enviar_precos);
             }
 
 
         return new Promise ( async (resolve,reject ) =>{
             const sql = `
                 UPDATE ${database_api}.config_bling set  importar_pedidos = ${importar_pedidos} , 
-                enviar_estoque =  ${enviar_estoque}  , enviar_precos = ${enviar_preco}    where id = 1;
+                enviar_estoque =  ${enviar_estoque}  , enviar_precos = ${enviar_precos}    where id = 1;
             `
-            console.log(sql)
+            await conn.query(sql, (err,result )=>{
+                if(err){
+                    reject(err);
+                }else{
+                    console.log('dados atualizados ')
+                    resolve(result);
+                }
+            })
+          //  console.log(sql)
+
            
         })
     }

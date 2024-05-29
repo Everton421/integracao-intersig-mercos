@@ -62,15 +62,12 @@ router.post('/teste', async (req,res)=>{
   //console.log(req.body)
   const obj = new configApi();
   let a = await obj.atualizaDados(req.body) 
-
-
   
 })
 
 router.get('/teste2',verificaToken, async (req,res)=>{
-  const aux = new ClienteErp();
-  let t =  aux.formatCep('86990000');
-console.log(t);
+  const aux = new apiController();
+  const main = await aux.main();
 }) 
 
 

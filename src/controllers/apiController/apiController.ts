@@ -20,6 +20,7 @@ export class apiController{
         })
     }
 
+    
   async  main(){
 
 let aux:any ;
@@ -57,7 +58,7 @@ let aux:any ;
             return;
         }
 
-        if(config.enviar_preco === 1){
+        if(config.enviar_precos === 1){
             console.log('enviando preco')
         }else{
             return;

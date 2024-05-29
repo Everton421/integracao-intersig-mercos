@@ -44,7 +44,7 @@ if(portdb !== undefined){
             port_db_api  = parseInt(portdb);
         }
 
-        export const database_api = 'integracao'
+        export const database_api =process.env.DB_API
        export const conn_api =   mysql.createPool({
             connectionLimit : 10,
             host: hostApi,

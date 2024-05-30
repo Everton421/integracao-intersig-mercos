@@ -1,8 +1,14 @@
 import { conn, database_api } from "../../database/databaseConfig"
+import { pedidoController } from "../pedido/pedidoController";
+import { ProdutoController } from "../produtos/ProdutoController";
 var cron = require('node-cron');
 
 export class apiController{
 
+
+     delay(ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 
 
     async buscaConfig( ){
@@ -23,14 +29,23 @@ export class apiController{
     
   async  main(){
 
+
+const tempoPedido = process.env.IMPORTAR_PEDIDOS;
+const tempoEstoque = process.env.ENVIAR_ESTOQUE;
+const enviarPreco = process.env.ENVIAR_PRECO;
+
 let aux:any ;
-    try{
+    
+const produto = new ProdutoController;
+const pedido = new pedidoController;
+
+
+try{
          aux= await this.buscaConfig();
     }catch(err){ console.log(err);}
 
     
         let config;
-
         if(aux.length > 0 ){
             config = aux[0];
         }else{
@@ -39,8 +54,11 @@ let aux:any ;
 
 
         if(config.importar_pedidos  === 1){
-            cron.schedule('* * * * * *', () => {
+    this.delay(8000);
+
+            cron.schedule(tempoPedido, async () => {
                 console.log("importando pedidos");
+                await pedido.buscaPedidosBling();
             });
         }else{
             return;
@@ -49,17 +67,26 @@ let aux:any ;
 
 
         if(config.enviar_estoque === 1){
+    this.delay(8000);
         
-            cron.schedule('* * * * * *', () => {
+            cron.schedule(tempoEstoque,async () => {
                 console.log('enviando estoque')
+                await produto.enviaEstoque();
             });
         
         }else{
             return;
         }
 
+   
+
         if(config.enviar_precos === 1){
-            console.log('enviando preco')
+    this.delay(8000);
+
+            cron.schedule(enviarPreco, () => {
+                console.log('enviando preco')
+            });
+            
         }else{
             return;
         }

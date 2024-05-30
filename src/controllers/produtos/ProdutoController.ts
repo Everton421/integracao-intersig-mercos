@@ -214,6 +214,7 @@ export class ProdutoController {
                                 const estoqueEnviado = await api.config.post('/estoques', estoque);
                                 console.log(estoqueEnviado.data);
                             }catch(err){
+                                console.log(estoque);
                                     console.log(err + "erro ao enviar o estoque ")
                                 }
                                 await delay(3000);

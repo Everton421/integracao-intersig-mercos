@@ -9,6 +9,7 @@ import path from 'path';
 
 import { router } from './routes';
 import { conn } from './database/databaseConfig';
+import { apiController } from './controllers/apiController/apiController';
 
         const app = express();
 
@@ -32,6 +33,12 @@ import { conn } from './database/databaseConfig';
                         messsage: 'internal server error.'
                     })
                 })
+
+                async function tarefas(){ 
+                 const aux = new apiController();
+                const main = await aux.main();
+            }
+            tarefas();
 
                 const PORT_API = process.env.PORT_API; // Porta padrão para HTTPS
 

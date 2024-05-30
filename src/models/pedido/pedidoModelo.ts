@@ -87,8 +87,8 @@ async cadastraParcelasDoPedido( parcelas:any , codigoPedido:any){
 					//reject(err);
 					console.log(err);
 				}else{
-					console.log(result)
-				//	resolve(result)
+					//console.log(result)
+					resolve(result)
 				}
 			})
 
@@ -206,12 +206,12 @@ let codigoPedido: any;
 
 					 let json = { "Id_bling":codigo_site , "codigo_sistema":codigoPedido };
  
-                        // try{  
-                        //      const result = await pedidoApi.cadastraPedidoApi(json)
-                        //    }catch(err){
-                        //        
-                        //        console.log(" erro ao cadastrar na tabela da api"+ err);
-                        //    }
+                          try{  
+                               const result = await pedidoApi.cadastraPedidoApi(json)
+                             }catch(err){
+                                 
+                                 console.log(" erro ao cadastrar na tabela da api"+ err);
+                             }
 						let resultProdutos;
 				try{
 					resultProdutos =	await this.cadastraProdutosDoPedido(produtos,codigoPedido)

@@ -13,7 +13,11 @@ export interface ProdutoBling{
     profundidade:number,
     dimensoes:dimensoes,
     tributacao:tributacao,
+    categoria?:categoria
     midia?:midia
+}
+interface categoria{
+    id:any
 }
 
 interface midia{

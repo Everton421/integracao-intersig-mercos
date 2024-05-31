@@ -7,9 +7,16 @@ export class configApi{
         let { 
              importar_pedidos,
               enviar_estoque,
-               enviar_precos 
+               enviar_precos,
+               tabela 
+
             } = json; 
             
+            if(!tabela){
+                tabela = 0;
+            }else{
+                tabela = parseInt(tabela);
+            }
 
             if(!importar_pedidos){
                 importar_pedidos = 0;
@@ -32,7 +39,7 @@ export class configApi{
         return new Promise ( async (resolve,reject ) =>{
             const sql = `
                 UPDATE ${database_api}.config_bling set  importar_pedidos = ${importar_pedidos} , 
-                enviar_estoque =  ${enviar_estoque}  , enviar_precos = ${enviar_precos}    where id = 1;
+                enviar_estoque =  ${enviar_estoque}  , enviar_precos = ${enviar_precos}, tabela_preco = ${tabela}   where id = 1;
             `
             await conn.query(sql, (err,result )=>{
                 if(err){

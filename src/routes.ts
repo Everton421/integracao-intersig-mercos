@@ -4,21 +4,13 @@ import 'dotenv/config';
 import { TokenController } from "./controllers/token/tokenController";
 import { verificaToken } from "./Middlewares/TokenMiddleware";
 import { ProdutoController } from "./controllers/produtos/ProdutoController";
-
 import { ProdutoApi } from "./models/produtoApi/produtoApi";
-import ConfigApi from "./Services/api";
 import { ProdutoModelo } from "./models/produto/produtoModelo";
-import { conn, db_publico } from "./database/databaseConfig";
-import axios from "axios";
-import { ClienteErp } from "./models/cliente/clienteErp";
-import { ClienteController } from "./controllers/cliente/ClienteController";
 import { pedidoController } from "./controllers/pedido/pedidoController";
-import { clienteApi } from "./models/clienteApi/clienteApi";
-import { PedidoApi } from "./models/pedidoApi/pedidoApi";
 import { apiController } from "./controllers/apiController/apiController";
 import { configApi } from "./models/configApi/config";
-import { imgController } from "./controllers/imgBB/imgController";
-
+import { categoriaController } from "./controllers/categoria/categoriaController";
+const cron = require('node-cron')
 const router = Router();
 
 
@@ -28,19 +20,18 @@ router.get('/', verificaToken,async (req,res) =>{
 
 router.get('/config', async  ( req, res )=>{
   const configApi = new apiController();
+  const objProdutos = new ProdutoModelo();
   const data = await configApi.buscaConfig();
-  //console.log(data)
-  res.render('config', {'config':data});
+  const tabelas = await objProdutos.buscaTabelaDePreco();
+  res.render('config', {'config':data , 'tabelas':tabelas});
 })
 
 router.get('/produtos', verificaToken , async (req,res) =>{
-
    const objProdutos = new ProdutoModelo();
     const objSincronizados = new ProdutoApi();
     const sincronizados = await objSincronizados.buscaTodos();
   const produtos = await objProdutos.buscaProdutos();
   const tabelas = await objProdutos.buscaTabelaDePreco();
-
 res.render('produtos',{'produtos' : produtos, 'sincronizados':sincronizados, 'tabelas': tabelas});
  })
 
@@ -60,29 +51,21 @@ router.get('/estoque',verificaToken, new ProdutoController().enviaEstoque)
 
 router.post('/teste', async (req,res)=>{
   const au = JSON.stringify(req.body);
-  //console.log(req.body)
+   //console.log(req.body)
   const obj = new configApi();
   let a = await obj.atualizaDados(req.body) 
   
 })
 
 router.get('/teste2',verificaToken, async (req,res)=>{
-  const aux = new apiController();
-  const main = await aux.main();
+  const aux = new categoriaController();
+  const main = await aux.validaCatedoria(2);
+
+
+   console.log(main)
 }) 
 
 
-router.get('/teste3',verificaToken, async (req,res)=>{
-  
-  const aux = new imgController();
-  const caminhoImg = await aux.postFoto('C:/INTERSIG/FOTOS/','7829.JPG');
-
-const produto = new ProdutoModelo();
-
-let img = await produto.buscaFotos(8882);
-let caminho = await produto.buscaCaminhoFotos();
- 
-}) 
 
 
      export {router} 

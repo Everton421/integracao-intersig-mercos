@@ -3,13 +3,15 @@ import fs from "fs";
 import path from "path";
 
 import FormData, { promises } from "form-data";
+import { ProdutoModelo } from "../../models/produto/produtoModelo";
 
 export class imgController{
 
-async postFoto ( caminho:string , foto:string ){
+async postIMGBB ( caminho:string , foto:string ){
     return new Promise( async (resolve, reject)=>{
 
-    const apiKey = '175dce8ab4d45e54441c03f3d4e00b3d'; // Substitua pela sua chave de API do imgbb
+    const apiKey = process.env.API_KEY_IMGBB
+      
     const expiration = 9000; // Tempo de expiração em segundos
     const imagePath = path.join(caminho, foto); // Caminho para a imagem
    // console.log(imagePath);
@@ -25,7 +27,7 @@ async postFoto ( caminho:string , foto:string ){
                  ...form.getHeaders()
              }
          });
-         console.log(  response.data.data.url);
+      //   console.log(  response.data.data.url);
          resolve(response.data.data.url);
          //res.json(response.data);
      } catch (error:any) {
@@ -35,5 +37,32 @@ async postFoto ( caminho:string , foto:string ){
 })
 
 }
+
+async postFoto( data:any ){
+
+    const produto = new ProdutoModelo();
+
+    const caminhoImg:any = await produto.buscaCaminhoFotos();
+    const fotosProduto:any = await produto.buscaFotos(data.CODIGO);
+    let linkFoto:any;
+    let links:any =[];
+
+    if( fotosProduto.length > 0 ){
+       
+       for( const foto of fotosProduto ){
+           try{
+            linkFoto =  await this.postIMGBB(caminhoImg[0].FOTOS, foto.FOTO )
+            links.push( {"link":linkFoto});
+
+        }catch(err){console.log(err+'erro ao enviar foto')}
+           
+        }
+        return links;
+    }else{
+       console.log('nenhuma foto encontrada');
+    }
+
+}
+
 
 }

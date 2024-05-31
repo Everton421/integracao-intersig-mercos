@@ -5,6 +5,7 @@ import { ProdutoBling } from "../../interfaces/produtoBling";
 import ConfigApi from "../../Services/api";
 import { ProdutoApi } from "../../models/produtoApi/produtoApi";
 import { imgController } from "../imgBB/imgController";
+import { categoriaController } from "../categoria/categoriaController";
 // import { api } from "../../Services/api";
 
 export class ProdutoController {
@@ -12,6 +13,8 @@ export class ProdutoController {
 
     
     async enviaProduto( req:Request, res:Response) {
+        const categoriacontroller = new categoriaController();
+
        const  produtoSelecionado:any =  req.body.produto;
        const tabelaSelecionada:any = req.body.tabela; 
 
@@ -27,6 +30,7 @@ export class ProdutoController {
         }
 
             async function envio(){
+               
                 let produtos:any =[];
 
                 if(produtoSelecionado === '*' ){
@@ -37,28 +41,14 @@ export class ProdutoController {
                 }
         
                 for (const data of produtos ){
+                   // console.log(data);
 
-                    const caminhoImg:any = await produto.buscaCaminhoFotos();
-                    const fotosProduto:any = await produto.buscaFotos(data.CODIGO);
-
-                    let linkFoto:any;
-
-                    let links:any =[];
-
-                    if( fotosProduto.length > 0 ){
-                       
-                       for( const foto of fotosProduto ){
-                           try{
-                            linkFoto =  await fotosController.postFoto(caminhoImg[0].FOTOS, foto.FOTO )
-                            links.push( {"link":linkFoto});
-
-                        }catch(err){console.log(err+'erro ao enviar foto')}
-                           
-                        }
-                    }else{
-                       console.log('nenhuma foto encontrada');
-                    }
-
+                    //envio de imagen
+                    let links = await fotosController.postFoto( data ) ;
+                     //
+                    
+                     //valida grupo
+                        let categoria = await categoriacontroller.validaCatedoria(data.GRUPO);
 
                     const produtoSincronizado:any = await produtoApi.busca(data.CODIGO);
 
@@ -76,9 +66,8 @@ export class ProdutoController {
                              queryNcm  = await produto.buscaNcm(data.CLASS_FISCAL);
                     }catch(err){ console.log('erro ao obter o ncm do produto')}
 
-                    let ncm 
+                        let ncm 
                         let cod_cest 
-
                         
                     if( queryNcm.length > 0){
                         ncm    = queryNcm[0].ncm;
@@ -87,14 +76,11 @@ export class ProdutoController {
                             ncm    =  null ;
                             cod_cest   =  null;
                         }
-                         
 
                             if(queryNcm[0].cod_cest === '00.000.00'){
                             cod_cest   =  null;
                             }
                          
-                        
-
 
                     const post: ProdutoBling = {
                                     codigo: data.CODIGO,
@@ -113,9 +99,12 @@ export class ProdutoController {
                                     tributacao: { cest: cod_cest, ncm: ncm, },
                                         midia:{
                                                "imagens":{
-                                        "externas":    links
-                                    }
-                                }
+                                                "externas": links
+                                             }
+                                            },
+                                    categoria:{
+                                        id:categoria
+                                      }
                                 };
                                     console.log(post)
                                
@@ -145,9 +134,13 @@ export class ProdutoController {
                                     midia:{
                                         "imagens":{
                                  "externas":    links
-                             }
-                         }
-                                    }
+                                                  }
+                                         },
+                                          categoria:{
+                                            id:categoria
+                                          }  
+                                    
+                                        }
                                                 try{
                                                     const response = await api.config.put(`/produtos/${id}`,put)
                                                     console.log(response.status,"atualizado com sucesso!")
@@ -156,9 +149,7 @@ export class ProdutoController {
                    }else{
                                     try {
                                         
-                                        
                                         const response = await api.config.post('/produtos', post);
-
                                         //console.log(post);
                                          const produtoEnviado = {
                                                 id_bling : response.data.data.id,
@@ -166,8 +157,6 @@ export class ProdutoController {
                                                  descricao: data.DESCRICAO
                                                          }
                                       
-                                                         
-
                                              try{
                                                       let prod =  await produtoApi.inserir(produtoEnviado);
                                                }catch(error){ 
@@ -196,6 +185,7 @@ export class ProdutoController {
 
                 return ;
             }
+
 
             try{
                 envio();
@@ -267,6 +257,7 @@ export class ProdutoController {
                  }
 
     }
+
 
 
 }

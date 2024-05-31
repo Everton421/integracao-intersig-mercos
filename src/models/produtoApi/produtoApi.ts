@@ -2,7 +2,9 @@ import { conn_api, database_api } from "../../database/databaseConfig"
 
 export class ProdutoApi{
 
-
+    formatDescricao(descricao: string): string {
+    return descricao.replace(/'/g, '');
+    }
 
         async inserir( value:any ){
             const now = new Date(); // Obtém a data e hora atuais
@@ -19,8 +21,15 @@ export class ProdutoApi{
 
             return new Promise( async (resolve, reject)=>{
                 
+
+
                 const { id_bling, codigo_sistema , descricao} = value;
-                const sql = ` INSERT INTO ${database_api}.produtos VALUES ('${id_bling}','${descricao}','${codigo_sistema}', '${dataInsercao}')` 
+
+
+                let descricaoSemAspas = this.formatDescricao(descricao);
+                
+
+                const sql = ` INSERT INTO ${database_api}.produtos VALUES ('${id_bling}','${descricaoSemAspas}','${codigo_sistema}', '${dataInsercao}')` 
 
                 await conn_api.query(sql, (err, result)=>{
                     if(err){

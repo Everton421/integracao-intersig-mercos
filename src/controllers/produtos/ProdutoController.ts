@@ -4,6 +4,7 @@ import { conn,db_publico } from "../../database/databaseConfig";
 import { ProdutoBling } from "../../interfaces/produtoBling";
 import ConfigApi from "../../Services/api";
 import { ProdutoApi } from "../../models/produtoApi/produtoApi";
+import { imgController } from "../imgBB/imgController";
 // import { api } from "../../Services/api";
 
 export class ProdutoController {
@@ -18,7 +19,7 @@ export class ProdutoController {
         const produto = new ProdutoModelo();
         const produtoApi = new ProdutoApi();
 
-
+        const fotosController = new imgController();
        
 
         function delay(ms: number) {
@@ -37,10 +38,29 @@ export class ProdutoController {
         
                 for (const data of produtos ){
 
+                    const caminhoImg:any = await produto.buscaCaminhoFotos();
+                    const fotosProduto:any = await produto.buscaFotos(data.CODIGO);
+
+                    let linkFoto:any;
+
+                    let links:any =[];
+
+                    if( fotosProduto.length > 0 ){
+                       
+                       for( const foto of fotosProduto ){
+                           try{
+                            linkFoto =  await fotosController.postFoto(caminhoImg[0].FOTOS, foto.FOTO )
+                            links.push( {"link":linkFoto});
+
+                        }catch(err){console.log(err+'erro ao enviar foto')}
+                           
+                        }
+                    }else{
+                       console.log('nenhuma foto encontrada');
+                    }
+
 
                     const produtoSincronizado:any = await produtoApi.busca(data.CODIGO);
-
-    
 
                             let preco:any = 0
                         try{
@@ -50,8 +70,6 @@ export class ProdutoController {
                                         //console.log(preco)
                                     }
                             }catch(err){ console.log("erro ao obter tabela de preco para o produto: " +data.CODIGO)}
-
-
                     //busca ncm
                     let queryNcm:any =[];
                          try{
@@ -69,6 +87,12 @@ export class ProdutoController {
                             ncm    =  null ;
                             cod_cest   =  null;
                         }
+                         
+
+                            if(queryNcm[0].cod_cest === '00.000.00'){
+                            cod_cest   =  null;
+                            }
+                         
                         
 
 
@@ -86,8 +110,15 @@ export class ProdutoController {
                                     altura: data.ALTURA,
                                     profundidade: data.COMPRIMENTO,
                                     dimensoes: { altura: data.ALTURA, largura: data.LARGURA, profundidade: data.COMPRIMENTO },
-                                    tributacao: { cest: cod_cest, ncm: ncm, }
+                                    tributacao: { cest: cod_cest, ncm: ncm, },
+                                        midia:{
+                                               "imagens":{
+                                        "externas":    links
+                                    }
+                                }
                                 };
+                                    console.log(post)
+                               
 
 //atualiza caso ja tenha sido enviado 
                  if(produtoSincronizado.length > 0 ){
@@ -110,7 +141,12 @@ export class ProdutoController {
                                     altura: data.ALTURA,
                                     profundidade: data.COMPRIMENTO,
                                     dimensoes: { altura: data.ALTURA, largura: data.LARGURA, profundidade: data.COMPRIMENTO },
-                                    tributacao: { cest: cod_cest, ncm: ncm, }
+                                    tributacao: { cest: cod_cest, ncm: ncm, },
+                                    midia:{
+                                        "imagens":{
+                                 "externas":    links
+                             }
+                         }
                                     }
                                                 try{
                                                     const response = await api.config.put(`/produtos/${id}`,put)
@@ -118,16 +154,20 @@ export class ProdutoController {
                                                     
                                                 }catch(err){}
                    }else{
-
                                     try {
+                                        
+                                        
                                         const response = await api.config.post('/produtos', post);
+
                                         //console.log(post);
                                          const produtoEnviado = {
                                                 id_bling : response.data.data.id,
                                                 codigo_sistema : data.CODIGO,
                                                  descricao: data.DESCRICAO
                                                          }
-                                                
+                                      
+                                                         
+
                                              try{
                                                       let prod =  await produtoApi.inserir(produtoEnviado);
                                                }catch(error){ 

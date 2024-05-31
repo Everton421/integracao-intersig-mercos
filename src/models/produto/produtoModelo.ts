@@ -106,6 +106,40 @@ async buscaPreco( produto:any, tabela:any ){
   })
 }
 
+async buscaFotos(produto:any){
+  const sql =  `  
+      SELECT  CAST(FOTO  AS CHAR(1000)  CHARACTER SET utf8)  FOTO  from ${db_publico}.fotos_prod where  PRODUTO = ${produto};    
+              ; ` 
+
+  return new Promise( async ( resolve, reject )=>{
+    await conn.query(sql, ( err, result )=>{
+        if(err){
+          reject(err);
+        }else{
+          resolve(result);
+        }
+    })
+  })
+
+}
+
+  async buscaCaminhoFotos(){
+    const sql =  `  
+    SELECT  CAST(FOTOS AS CHAR(1000)  CHARACTER SET utf8)  FOTOS from ${db_vendas}.parametros;   
+              ; ` 
+
+  return new Promise( async ( resolve, reject )=>{
+    await conn.query(sql, ( err, result )=>{
+        if(err){
+          reject(err);
+        }else{
+          resolve(result);
+        }
+    })
+  })
+
+}
+
   
 
   async buscaNcm( codigo:any){

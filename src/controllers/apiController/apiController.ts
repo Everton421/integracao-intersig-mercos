@@ -58,7 +58,7 @@ try{
 
             cron.schedule(tempoPedido, async () => {
                 console.log("importando pedidos");
-                await pedido.buscaPedidosBling();
+            //    await pedido.buscaPedidosBling();
             });
         }else{
             return;
@@ -71,7 +71,7 @@ try{
         
             cron.schedule(tempoEstoque,async () => {
                 console.log('enviando estoque')
-                await produto.enviaEstoque();
+               // await produto.enviaEstoque();
             });
         
         }else{

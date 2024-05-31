@@ -38,12 +38,17 @@ import { apiController } from './controllers/apiController/apiController';
                  const aux = new apiController();
                 const main = await aux.main();
             }
+
             tarefas();
 
                 const PORT_API = process.env.PORT_API; // Porta padrão para HTTPS
 
 
 
-   app.listen(PORT_API,()=>{ console.log(`app rodando porta ${PORT_API}  `)})
+   app.listen(PORT_API,()=>{ 
+
+    console.log(`app rodando porta ${PORT_API}  `)
+
+})
    
 

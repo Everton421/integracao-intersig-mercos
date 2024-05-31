@@ -17,6 +17,7 @@ import { clienteApi } from "./models/clienteApi/clienteApi";
 import { PedidoApi } from "./models/pedidoApi/pedidoApi";
 import { apiController } from "./controllers/apiController/apiController";
 import { configApi } from "./models/configApi/config";
+import { imgController } from "./controllers/imgBB/imgController";
 
 const router = Router();
 
@@ -70,6 +71,18 @@ router.get('/teste2',verificaToken, async (req,res)=>{
   const main = await aux.main();
 }) 
 
+
+router.get('/teste3',verificaToken, async (req,res)=>{
+  
+  const aux = new imgController();
+  const caminhoImg = await aux.postFoto('C:/INTERSIG/FOTOS/','7829.JPG');
+
+const produto = new ProdutoModelo();
+
+let img = await produto.buscaFotos(8882);
+let caminho = await produto.buscaCaminhoFotos();
+ 
+}) 
 
 
      export {router} 

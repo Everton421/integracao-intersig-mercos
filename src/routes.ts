@@ -10,6 +10,7 @@ import { pedidoController } from "./controllers/pedido/pedidoController";
 import { apiController } from "./controllers/apiController/apiController";
 import { configApi } from "./models/configApi/config";
 import { categoriaController } from "./controllers/categoria/categoriaController";
+import { getProdutos } from "./controllers/get_vinculo_produtos/getProdutos";
 const cron = require('node-cron')
 const router = Router();
 
@@ -60,12 +61,16 @@ router.post('/teste', async (req,res)=>{
 router.get('/teste2',verificaToken, async (req,res)=>{
   const aux = new categoriaController();
   const main = await aux.validaCatedoria(2);
-
-
    console.log(main)
 }) 
 
 
 
+
+router.get('/teste3',verificaToken,async( req,res)=>{
+  const aux = new getProdutos();
+   await aux.criarVinculo();
+  })
+  
 
      export {router} 

@@ -11,7 +11,7 @@ export class apiController{
     }
 
 
-    async buscaConfig( ){
+    async buscaConfig(){
         return new Promise( async (resolve, reject)=>{
             const sql =
             ` SELECT * FROM ${database_api}.config_bling;`

@@ -37,7 +37,7 @@ async insereToken(json:any, database:any){
 
 
     async  buscaToken(){
-        const sql = `SELECT * FROM ${database_api}.tokens WHERE id = 1`;
+        const sql = `SELECT * FROM ${database_api}.tokens WHERE Id = 1`;
         return new Promise( async (resolve, reject)=>{
             await conn_api.query(sql, (err, result) => {
                 if(err){

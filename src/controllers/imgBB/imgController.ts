@@ -11,12 +11,18 @@ async postIMGBB ( caminho:string , foto:string ){
     return new Promise( async (resolve, reject)=>{
 
     const apiKey = process.env.API_KEY_IMGBB
-      
+
     const expiration = 9000; // Tempo de expiração em segundos
     const imagePath = path.join(caminho, foto); // Caminho para a imagem
-   // console.log(imagePath);
-    // Ler a imagem e convertê-la para base64
-     const imageBase64 = fs.readFileSync(imagePath, { encoding: 'base64' });
+  //  if(!imagePath || !caminho){
+  //      return
+  //  }
+        if(fs.existsSync(imagePath)){
+            console.log('arquivo existe')
+        
+      console.log(imagePath);
+
+   const imageBase64 = fs.readFileSync(imagePath, { encoding: 'base64' });
  
      const form = new FormData();
      form.append('image', imageBase64);
@@ -33,6 +39,13 @@ async postIMGBB ( caminho:string , foto:string ){
      } catch (error:any) {
         reject(error);
      }
+
+
+    }else{
+        reject('caminho nao encontrado');
+        
+      //  return;
+    }
 
 })
 

@@ -1,5 +1,5 @@
 import ConfigApi from "../../Services/api";
-import { categoriaApi } from "../../models/categoriaApi/categoriaapi";
+import { categoriaApi } from "../../models/categoriaApi/categoriaApi"; 
 import { categoriaErp } from "../../models/categoriaErp/categoriaErp";
 
 export class categoriaController{

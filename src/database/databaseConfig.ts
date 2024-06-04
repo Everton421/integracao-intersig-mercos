@@ -39,7 +39,7 @@ if(portdb !== undefined){
         const hostApi    = process.env.HOST_API;
         const userApi = process.env.USER_API;
          const senhaApi = process.env.PASSWORD_API;
-     //   export const db_api = process.env.DB_API;
+         export const db_api = process.env.DB_API;
         if(portdb !== undefined){
             port_db_api  = parseInt(portdb);
         }
@@ -51,6 +51,7 @@ if(portdb !== undefined){
             user: userApi,
             port: port_db_api,
             password: senhaApi,
+            database:db_api
         })
 
 /*---------------------------------------------------------------------*/ 

@@ -60,9 +60,7 @@ try{
                 console.log("importando pedidos");
                  await pedido.buscaPedidosBling();
             });
-        }else{
-            return;
-        }
+        } 
 
 
 
@@ -74,20 +72,17 @@ try{
                  await produto.enviaEstoque();
             });
         
-        }else{
-            return;
         }
-
    
 
         if(config.enviar_precos === 1){
     this.delay(8000);
 
-            cron.schedule(enviarPreco,async  () => {
-                console.log('enviando preco')
-                await produto.enviaEstoque();
-
-            });
+     //      cron.schedule(enviarPreco,async  () => {
+     //          console.log('enviando preco')
+     //          await produto.enviaEstoque();
+//
+     //      });
             
         }else{
             return;

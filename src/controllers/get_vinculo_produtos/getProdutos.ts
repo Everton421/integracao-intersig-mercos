@@ -33,25 +33,58 @@ export class getProdutos{
         let produtos:any=[];
         await api.configurarApi(); // Aguarda a configuração da API
         
+      let pagina = 1;
+      let continuar = true;
+       
+      while(continuar){
+
+
         try{
          
-              const response  = await api.config.get(`/produtos`)
-                produtos = response.data.data;
-              //console.log(produtos.data.data);
+              const response  = await api.config.get(`/produtos`,{
+                params: {
+                  pagina: pagina,
+                  tipo: 'P',
+                  criterio:2
+                }
+              })  
+
+              let  produtosResponse = response.data.data;
+
+                  if( produtosResponse.length > 0){
+                  //  console.log(produtosResponse);
+                      produtos  =  produtos.concat(produtosResponse);;
+                    pagina++;
+                  }else{
+                    continuar = false;
+                  }
+
+
+
         }catch(err){
             console.log("erro ao buscar produtos "+err)
+            continuar = false;
         }
 
+
+      }
+
+       console.log(produtos);
 
           for(let prod of produtos ){  
   
           const    id_bling = prod.id   
           const  codigo_sistema = parseInt(prod.codigo); 
           const     descricao  = prod.nome
-  
+            if( isNaN(codigo_sistema)){
+              console.log('codigo invalido');
+              continue;
+            }
+
               const value = {
                   id_bling,codigo_sistema, descricao
               }
+
 
                console.log(value)
             

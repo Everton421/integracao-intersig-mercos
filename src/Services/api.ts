@@ -19,6 +19,7 @@ export class ConfigApi {
             // Cria a instância do axios com o token
             this.config = axios.create({
                 baseURL: url_bling,
+                 
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`

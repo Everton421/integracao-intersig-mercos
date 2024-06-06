@@ -58,16 +58,12 @@ router.post('/teste', async (req,res)=>{
   
 })
 
-router.get('/teste2',verificaToken, async (req,res)=>{
-  const aux = new categoriaController();
-  const main = await aux.validaCatedoria(2);
-   console.log(main)
-}) 
 
 
 
 
-router.get('/teste3',verificaToken,async( req,res)=>{
+
+router.get('/getProdutos',verificaToken,async( req,res)=>{
   const aux = new getProdutos();
    await aux.criarVinculo();
   })

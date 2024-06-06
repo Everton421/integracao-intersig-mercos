@@ -1,4 +1,4 @@
-import { conn_api, database_api } from "../../database/databaseConfig"
+import { conn_api, database_api, db_estoque } from "../../database/databaseConfig"
 
 export class ProdutoApi{
 
@@ -43,7 +43,12 @@ export class ProdutoApi{
 
         async buscaTodos(){
             return new Promise( async ( resolve, reject )=>{
-                const sql = ` SELECT * FROM ${database_api}.produtos;`
+                const sql = ` SELECT p.codigo_sistema , p.descricao, p.Id_bling, ps.ESTOQUE estoque  
+                 FROM ${database_api}.produtos  p
+                 JOIN ${db_estoque}.prod_saldo ps on ps.CODIGO = p.codigo_sistema 
+                 ORDER BY p.codigo_sistema  ASC
+
+                ;`
                 await conn_api.query(sql, (err, result)=>{
                     if(err){
                         reject(err);

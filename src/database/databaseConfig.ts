@@ -1,5 +1,5 @@
 import { parse } from 'dotenv';
-import 'dotenv/config';
+ // import 'dotenv/config';
 import mysql from 'mysql';
 
 /**----------------------------------------------------------------------- */
@@ -45,6 +45,7 @@ if(portdb !== undefined){
         }
 
         export const database_api =process.env.DB_API
+
        export const conn_api =   mysql.createPool({
             connectionLimit : 10,
             host: hostApi,
@@ -54,6 +55,20 @@ if(portdb !== undefined){
             database:db_api
         })
 
+        console.log(userApi)
+        console.log(senhaApi)
+        console.log(db_api)
+
+
+
+
+      //  conn.getConnection( (err)=>{
+      //      if(err){
+      //          console.log(err);
+      //      }else{
+      //          console.log('conectado')
+      //      }
+      //  })
 /*---------------------------------------------------------------------*/ 
         
 

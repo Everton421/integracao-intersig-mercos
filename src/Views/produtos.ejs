@@ -146,7 +146,7 @@
                         <form class="d-flex" id="no-print" action="/api/produtos" method="post">
                          
                                 <select id="produto" name="produto" class="form-select" aria-label="Default select example">
-                                    <option selected value="*" >enviar todos</option>
+                                    <option selected   >produtos</option>
     
                                     <% produtos.forEach((v)=>{ %>
                                         <option value="<%= v.CODIGO %> "><%=v.CODIGO %> <%=v.DESCRICAO %> </option>
@@ -154,14 +154,14 @@
                                        <% }) %>
                                 </select>
     
-                                <select id="tabela" name="tabela" class="form-select" aria-label="Default select example">
+                          <!---      <select id="tabela" name="tabela" class="form-select" aria-label="Default select example">
                                     
                                     <% tabelas.forEach( (tabela)=> { %>
                                         <option selected value="<%= tabela.CODIGO %>"><%= tabela.DESCRICAO %> </option>
     
                                     <% }) %>
                                     
-                                </select>
+                                </select>-->
                                 <!-- Adicione campos ocultos para enviar as datas e o vendedor -->
                             <button class="btn btn-outline-success" type="submit">enviar</button>
                         </form>
@@ -180,7 +180,10 @@
                         <li class="list-group-item py-1">
                             Código: <%= value.codigo_sistema %>
                             <div class="fw-bold"><%= value.descricao %></div>
-                        </li>
+                            <div class="fw-bold">
+                            saldo: <span class="badge bg-primary rounded-pill"> <%= value.estoque %></span>
+                          </div>
+                          </li>
                    
                     <% }) %>
                 </ol>

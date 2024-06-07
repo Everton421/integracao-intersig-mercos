@@ -117,10 +117,7 @@ export class ProdutoController {
         try{
             await api.configurarApi(); // Aguarda a configuração da API
                 
-            let deposito:any;
-            try{
-                 deposito = await api.config.get('/depositos');
-            }catch(err){ console.log(`erro ao buscar deposito ${err}` )}
+             const deposito = await api.config.get('/depositos');
             const idDeposito = deposito.data.data[0].id;
 
 

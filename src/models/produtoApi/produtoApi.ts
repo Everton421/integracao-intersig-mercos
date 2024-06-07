@@ -43,7 +43,7 @@ export class ProdutoApi{
 
         async buscaTodos(){
             return new Promise( async ( resolve, reject )=>{
-                const sql = ` SELECT p.codigo_sistema , p.descricao, p.Id_bling, ps.ESTOQUE estoque  
+                const sql = ` SELECT p.codigo_sistema , p.descricao, p.Id_bling, p.SKU sku, ps.ESTOQUE estoque  
                  FROM ${database_api}.produtos  p
                  JOIN ${db_estoque}.prod_saldo ps on ps.CODIGO = p.codigo_sistema 
                  ORDER BY p.codigo_sistema  ASC

@@ -43,7 +43,7 @@ export async function verificaToken(req: Request, res: Response, next: NextFunct
                         data.append('refresh_token', refreshToken);
                 
                         try {
-                              const responseToken = await axios.post(`${url_bling}/oauth/token`, data, { headers });
+                              const responseToken:any = await axios.post(`${url_bling}/oauth/token`, data, { headers });
                               console.log(responseToken);
                               if(responseToken.token === undefined || responseToken.token === null ){
                                // console.log('erro ao oter um novo token utilizando o refres token')
@@ -56,7 +56,7 @@ export async function verificaToken(req: Request, res: Response, next: NextFunct
                                   next();
                             }
                         
-                        } catch (err) {
+                        } catch (err:any) {
                             if (err.response) {
                                 // O servidor respondeu com um status diferente de 2xx
                                 console.log("Erro ao obter o token:", err.response.data);

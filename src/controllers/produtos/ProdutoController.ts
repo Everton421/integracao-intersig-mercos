@@ -151,9 +151,10 @@ export class ProdutoController {
                             try{
                                 const estoqueEnviado = await api.config.post('/estoques', estoque);
                                 console.log(estoqueEnviado.data);
+                                console.log(`produto enviado ${data.codigo_sistema }`);
                             }catch(err){
                                 console.log(estoque);
-                                    console.log(err + " erro ao enviar o estoque ")
+                                    console.log(err + ` erro ao enviar o estoque para o produto ${data.codigo_sistema} `);
                                 }
                                 await delay(800);
                 

@@ -155,7 +155,7 @@ export class ProdutoController {
                                 console.log(estoque);
                                     console.log(err + "erro ao enviar o estoque ")
                                 }
-                                await delay(2000);
+                                await delay(500);
                 
                             }
 

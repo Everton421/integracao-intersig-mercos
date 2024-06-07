@@ -153,9 +153,9 @@ export class ProdutoController {
                                 console.log(estoqueEnviado.data);
                             }catch(err){
                                 console.log(estoque);
-                                    console.log(err + "erro ao enviar o estoque ")
+                                    console.log(err + " erro ao enviar o estoque ")
                                 }
-                                await delay(500);
+                                await delay(800);
                 
                             }
 

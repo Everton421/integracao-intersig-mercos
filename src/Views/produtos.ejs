@@ -177,11 +177,17 @@
                 <ol class="list-group list-group-flush">
                 
                     <% sincronizados.forEach((value, index) => { %>
-                        <li class="list-group-item py-1">
-                            Código: <%= value.codigo_sistema %>
+                       <li class="list-group-item py-1">
+                          
+                            <div> 
+                              Código: <%= value.codigo_sistema %>
+                            </div>
                             <div class="fw-bold"><%= value.descricao %></div>
                             <div class="fw-bold">
                             saldo: <span class="badge bg-primary rounded-pill"> <%= value.estoque %></span>
+                          </div>
+                          <div class="fw-bold">
+                            Sku: <span  >   <%= value.sku %></span>
                           </div>
                           </li>
                    

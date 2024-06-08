@@ -1,3 +1,4 @@
+import { verificaTokenTarefas } from "../../Middlewares/TokenMiddleware";
 import { conn, database_api } from "../../database/databaseConfig"
 import { pedidoController } from "../pedido/pedidoController";
 import { ProdutoController } from "../produtos/ProdutoController";
@@ -52,11 +53,11 @@ try{
             return;
         }
 
-
         if(config.importar_pedidos  === 1){
     this.delay(8000);
 
             cron.schedule(tempoPedido, async () => {
+        await verificaTokenTarefas();
                 console.log("importando pedidos");
                  await pedido.buscaPedidosBling();
             });
@@ -68,6 +69,7 @@ try{
     this.delay(8000);
         
             cron.schedule(tempoEstoque,async () => {
+        await verificaTokenTarefas();
                 console.log('enviando estoque')
                  await produto.enviaEstoque();
             });

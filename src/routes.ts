@@ -59,7 +59,10 @@ router.post('/teste', async (req,res)=>{
 })
 
 
-
+router.get('/postEstoque', async (req,res)=>{
+  const obj = new ProdutoController();
+  await obj.enviaEstoque();  
+})
 
 
 

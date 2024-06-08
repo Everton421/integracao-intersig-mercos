@@ -46,7 +46,7 @@ export class ProdutoApi{
                 const sql = ` SELECT p.codigo_sistema , p.descricao, p.Id_bling, ps.SKU sku, ps.ESTOQUE estoque  
                  FROM ${database_api}.produtos  p
                  JOIN ${db_estoque}.prod_saldo ps on ps.CODIGO = p.codigo_sistema 
-                 ORDER BY p.codigo_sistema  ASC
+                 ORDER BY p.Id_bling  ASC
 
                 ;`
                 await conn_api.query(sql, (err, result)=>{

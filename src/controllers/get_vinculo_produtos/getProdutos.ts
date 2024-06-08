@@ -94,7 +94,9 @@ export class getProdutos{
                  let descricaoSemAspas = this.formatDescricao(descricao);
                  
  
-                 const sql = ` INSERT INTO ${database_api}.produtos_get VALUES ('${id_bling}','${descricaoSemAspas}','${codigo_sistema}', '${dataInsercao}')` 
+                 const sql = ` INSERT INTO ${database_api}.produtos_get VALUES ('${id_bling}','${descricaoSemAspas}','${codigo_sistema}', '${dataInsercao}')
+                 ON  DUPLICATE KEY UPDATE codigo_sistema = '${codigo_sistema}';
+                 ` 
  
                  await conn_api.query(sql, (err:any, result)=>{
                      if(err){

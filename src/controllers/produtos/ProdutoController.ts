@@ -148,17 +148,31 @@ export class ProdutoController {
                           }
 
                             try{
-                                const estoqueEnviado = await api.config.post('/estoques', estoque);
-                                console.log(estoqueEnviado.data);
-                                console.log(` enviado saldo para produto: ${data.codigo_sistema }`);
+                                let status;
+                                let estoqueEnviado;
+                                  estoqueEnviado = await api.config.post('/estoques', estoque);
+                                status = estoqueEnviado.status
+
+                              //  console.log(estoqueEnviado.data);
+
+                                 if( status !== 201){
+                                await delay(1000);
+                                    console.log(`erro ao enviar saldo tentando enviar novamente ${status} `)  
+                                    estoqueEnviado =  await api.config.post('/estoques', estoque);
+                                    console.log(estoqueEnviado.data);    
+                                }
+                                console.log(estoqueEnviado.data);    
+                                console.log(` enviado saldo para produto: ${data.codigo_sistema }   saldo: ${saldoReal}  idBling: ${ data.Id_bling} `
+                                );
                             }catch(err){
                                 console.log(estoque);
                                     console.log(err + ` erro ao enviar o estoque para o produto ${data.codigo_sistema} `);
+                                
                                 }
                                 await delay(800);
                 
                             }
-
+                            console.log('fim do processo')
 
        }catch( error ){
                  console.log(error )

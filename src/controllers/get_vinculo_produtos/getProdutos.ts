@@ -1,5 +1,6 @@
 import ConfigApi from "../../Services/api";
 import { conn_api, database_api } from "../../database/databaseConfig";
+import { ProdutoModelo } from "../../models/produto/produtoModelo";
 import { ProdutoApi } from "../../models/produtoApi/produtoApi";
 
 export class getProdutos{
@@ -29,7 +30,8 @@ export class getProdutos{
 
         const produto = new  ProdutoApi();
         const  api:any = new ConfigApi();
-        
+        const produtoErp = new ProdutoModelo(); 
+
         let produtos:any=[];
         await api.configurarApi(); // Aguarda a configuração da API
         
@@ -90,21 +92,25 @@ export class getProdutos{
             
               await this.delay(2000);
 
- 
-                 let descricaoSemAspas = this.formatDescricao(descricao);
-                 
- 
-                 const sql = ` INSERT INTO ${database_api}.produtos_get VALUES ('${id_bling}','${descricaoSemAspas}','${codigo_sistema}', '${dataInsercao}')
-                 ON  DUPLICATE KEY UPDATE codigo_sistema = '${codigo_sistema}';
-                 ` 
- 
-                 await conn_api.query(sql, (err:any, result)=>{
-                     if(err){
-             console.log(err);
-                     }else{
-                       console.log(result)
-                     }
-                 })
+                let produtoDoErp:any = [];
+                try{
+                  produtoDoErp = await produtoErp.buscaProduto(codigo_sistema);
+                }catch(err){
+                }
+                if( produtoDoErp.length > 0 ){
+
+                  let descricaoSemAspas = this.formatDescricao(descricao);
+                  const sql = ` INSERT INTO ${database_api}.produtos VALUES ('${id_bling}','${descricaoSemAspas}','${codigo_sistema}', '${dataInsercao}')
+                  ON  DUPLICATE KEY UPDATE codigo_sistema = '${codigo_sistema}';
+                  ` 
+                  await conn_api.query(sql, (err:any, result)=>{
+                      if(err){
+              console.log(err);
+                      }else{
+                        console.log(result)
+                      }
+                  })
+                }else{ console.log('produto nao encontrado no ERP')}
 
   
       }

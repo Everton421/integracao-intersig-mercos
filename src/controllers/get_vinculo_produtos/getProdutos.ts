@@ -10,7 +10,7 @@ export class getProdutos{
     }
 
     formatDescricao(descricao: string): string {
-        return descricao.replace(/'/g, '');
+      return descricao.replace(/[\\\|/"']/g, '');
         }
 
     async criarVinculo(){
@@ -71,7 +71,7 @@ export class getProdutos{
 
       }
 
-       console.log(produtos);
+       //console.log(produtos);
 
           for(let prod of produtos ){  
   
@@ -94,7 +94,7 @@ export class getProdutos{
 
                 let produtoDoErp:any = [];
                 try{
-                  produtoDoErp = await produtoErp.buscaProduto(codigo_sistema);
+                  produtoDoErp = await produtoErp.buscaProduto(prod.codigo);
                 }catch(err){
                 }
                 if( produtoDoErp.length > 0 ){
@@ -110,7 +110,10 @@ export class getProdutos{
                         console.log(result)
                       }
                   })
-                }else{ console.log('produto nao encontrado no ERP')}
+                }else{
+                   console.log('produto nao encontrado no ERP')
+                  
+                  }
 
   
       }

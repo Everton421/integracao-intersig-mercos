@@ -120,7 +120,6 @@ export class ProdutoController {
              const deposito = await api.config.get('/depositos');
             const idDeposito = deposito.data.data[0].id;
 
-
                 const produtosEnviados:any = await produtoApi.buscaTodos();
 
                 for(const data of produtosEnviados){

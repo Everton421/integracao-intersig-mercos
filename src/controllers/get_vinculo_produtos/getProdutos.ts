@@ -10,7 +10,7 @@ export class getProdutos{
     }
 
     formatDescricao(descricao: string): string {
-      return descricao.replace(/[\\\|/"']/g, '');
+      return descricao.replace(/[\\\|/"'″]/g, '');
         }
 
     async criarVinculo(){

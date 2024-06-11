@@ -111,7 +111,7 @@ export class getProdutos{
                       }
                   })
                 }else{
-                   console.log('produto nao encontrado no ERP')
+                   console.log('produto nao encontrado no ERP cod: '+prod.codigo)
                   
                   }
 

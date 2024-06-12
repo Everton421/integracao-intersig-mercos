@@ -6,6 +6,7 @@ import ConfigApi from "../../Services/api";
 import { ProdutoApi } from "../../models/produtoApi/produtoApi";
 import { imgController } from "../imgBB/imgController";
 import { categoriaController } from "../categoria/categoriaController";
+import { verificaTokenTarefas } from "../../Middlewares/TokenMiddleware";
 // import { api } from "../../Services/api";
 
 export class ProdutoController {
@@ -104,6 +105,7 @@ export class ProdutoController {
 
 
     async enviaEstoque(){
+        await verificaTokenTarefas();
         function delay(ms: number) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }

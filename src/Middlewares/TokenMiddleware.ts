@@ -123,13 +123,13 @@ const tokenBD:any = await objToken.buscaToken(); // token registrado no banco
      
              try {
                    const responseToken:any = await axios.post(`${url_bling}/oauth/token`, data, { headers });
-                   console.log(responseToken);
-                   if(responseToken.token === undefined || responseToken.token === null ){
+                  /// console.log(responseToken);
+                   if(responseToken.data.access_token === undefined || responseToken.data.access_token === null ){
                       console.log('erro ao oter um novo token  ')
                    }
 
                    if (responseToken.status === 200) {
-                  // console.log("Refresh token obtido", responseToken)
+                    console.log("  token obtido", responseToken.status)
                        objToken.insereToken(responseToken.data, database_api);
 
                  }
@@ -148,7 +148,9 @@ const tokenBD:any = await objToken.buscaToken(); // token registrado no banco
              }
          }  
 
-     }  
+     }else{
+        console.log('token valido')
+     } 
  }
 
 

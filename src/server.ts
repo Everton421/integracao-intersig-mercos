@@ -10,6 +10,7 @@ import path from 'path';
 import { router } from './routes';
 import { conn } from './database/databaseConfig';
 import { apiController } from './controllers/apiController/apiController';
+import { verificaTokenTarefas } from './Middlewares/TokenMiddleware';
 
         const app = express();
 
@@ -45,10 +46,10 @@ import { apiController } from './controllers/apiController/apiController';
 
 
 
-   app.listen(PORT_API,()=>{ 
+   app.listen(PORT_API, async ()=>{ 
 
     console.log(`app rodando porta ${PORT_API}  `)
-
+    
 })
    
 

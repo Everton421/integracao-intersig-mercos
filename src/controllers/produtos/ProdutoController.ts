@@ -38,9 +38,12 @@ export class ProdutoController {
                 }else{
                      produtos  = await produto.buscaProduto(produtoSelecionado);
                 }
-        
+                
+                if(produtos.length > 0 ){
+                    
                 for (const data of produtos ){
-                   
+                    
+
                     const produtoSincronizado:any = await produtoApi.busca(data.CODIGO);
 
                     
@@ -93,6 +96,8 @@ export class ProdutoController {
                                  
                     await delay(2000);
                 }
+            } 
+
                 return ;
             }
             try{

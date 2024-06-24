@@ -40,7 +40,7 @@ export class ProdutoController {
                 }
                 
                 if(produtos.length > 0 ){
-                    
+                 
                 for (const data of produtos ){
                     
 
@@ -49,7 +49,7 @@ export class ProdutoController {
                     
 
                  if(produtoSincronizado.length > 0 ){
-                                    
+                    console.log(`produto ${data.CODIGO} ja foi enviado  `);
                                                  return    res.json({'msg': `produto ${data.CODIGO} ja foi enviado`})
                                                      // console.log(`produto ${data.CODIGO} ja foi enviado  `)
        
@@ -96,7 +96,9 @@ export class ProdutoController {
                                  
                     await delay(2000);
                 }
-            } 
+            } else{
+                console.log("produto invalido!");
+            }
 
                 return ;
             }
@@ -125,7 +127,14 @@ export class ProdutoController {
             await api.configurarApi(); // Aguarda a configuração da API
                 
              const deposito = await api.config.get('/depositos');
-            const idDeposito = deposito.data.data[0].id;
+            
+             if(!deposito.data.data){
+                console.log("nao encontrado deposito no bling");
+             }
+
+             const idDeposito = deposito.data.data[0].id;
+
+                    
 
                 const produtosEnviados:any = await produtoApi.buscaTodos();
                 if(produtosEnviados.length > 0 ){

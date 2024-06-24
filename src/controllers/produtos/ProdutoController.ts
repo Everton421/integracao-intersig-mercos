@@ -128,6 +128,7 @@ export class ProdutoController {
             const idDeposito = deposito.data.data[0].id;
 
                 const produtosEnviados:any = await produtoApi.buscaTodos();
+                if(produtosEnviados.length > 0 ){
 
                 for(const data of produtosEnviados){
                           const resultSaldo:any = await  produto.buscaEstoqueReal(data.codigo_sistema);
@@ -168,8 +169,7 @@ export class ProdutoController {
                                     console.log(estoqueEnviado.data);    
                                 }
                                 console.log(estoqueEnviado.data);    
-                                console.log(` enviado saldo para produto: ${data.codigo_sistema }   saldo: ${saldoReal}  idBling: ${ data.Id_bling} `
-                                );
+                                console.log(` enviado saldo para produto: ${data.codigo_sistema }   saldo: ${saldoReal}  idBling: ${ data.Id_bling} `);
                             }catch(err){
                                 console.log(estoque);
                                     console.log(err + ` erro ao enviar o estoque para o produto ${data.codigo_sistema} `);
@@ -178,6 +178,8 @@ export class ProdutoController {
                                 await delay(1000);
                 
                             }
+                        
+                        }
                             console.log('fim do processo')
 
        }catch( error ){

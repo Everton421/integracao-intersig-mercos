@@ -162,12 +162,14 @@ export class ProdutoController {
 
                               //  console.log(estoqueEnviado.data);
 
-                                 while( status !== 201 || status !== 200){
-                                await delay(5000);
-                                    console.log(`erro ao enviar saldo tentando enviar novamente ${status} `)  
+                                 while(status !== 201){
+                                    await delay(5000);
                                     estoqueEnviado =  await api.config.post('/estoques', estoque);
-                                    console.log(estoqueEnviado.data);    
-                                }
+                                     console.log(estoqueEnviado.data);
+                                    status = estoqueEnviado.status
+                                    }
+
+
                                 console.log(estoqueEnviado.data);    
                                 console.log(` enviado saldo para produto: ${data.codigo_sistema }   saldo: ${saldoReal}  idBling: ${ data.Id_bling} `);
                             }catch(err){

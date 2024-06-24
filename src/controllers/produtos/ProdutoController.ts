@@ -162,7 +162,7 @@ export class ProdutoController {
                               //  console.log(estoqueEnviado.data);
 
                                  while( status !== 201 || staus !== 200){
-                                await delay(3000);
+                                await delay(5000);
                                     console.log(`erro ao enviar saldo tentando enviar novamente ${status} `)  
                                     estoqueEnviado =  await api.config.post('/estoques', estoque);
                                     console.log(estoqueEnviado.data);    

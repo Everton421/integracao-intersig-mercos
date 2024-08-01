@@ -16,7 +16,11 @@ export class ProdutoController {
     async enviaProduto( req:Request, res:Response) {
         const categoriacontroller = new categoriaController();
 
-       const  produtoSelecionado:any =  req.body.produto;
+        console.log(parseInt(req.body.produto));
+        console.log("");
+        console.log("");
+
+       const  produtoSelecionado:any =  parseInt(req.body.produto);
        const tabelaSelecionada:any = req.body.tabela; 
 
         const  api:any = new ConfigApi();
@@ -36,8 +40,10 @@ export class ProdutoController {
                      produtos  = await produto.buscaProdutos();
                      console.log(produtoSelecionado)
                 }else{
+                    try{
                      produtos  = await produto.buscaProduto(produtoSelecionado);
-                }
+                    }catch(err){ console.log(`erro ao consultar o produto ${produtoSelecionado} `)}
+                    }
                 
                 if(produtos.length > 0 ){
                  
@@ -70,7 +76,7 @@ export class ProdutoController {
                                 } )
                             }catch(err){}
 
-
+                            console.log(produtoSemVinculo.data.data.length);
                          if( produtoSemVinculo.data.data.length > 0 ){
 
                             const produtoEnviado = {
@@ -80,15 +86,24 @@ export class ProdutoController {
                                                            }
                                         
                                                try{
-                                                        let prod =  await produtoApi.inserir(produtoEnviado);
-                                        res.json({'msg': `gerado vinculo para o produto ${data.CODIGO}`})
+                                                      
+                                                        let prod:any =  await produtoApi.inserir(produtoEnviado);
+                                                            if(prod.affectedRows === 1){
+                                                                console.log(`gerado vinculo para o produto ${data.CODIGO}`);
+                                                                res.json({'msg': `gerado vinculo para o produto ${data.CODIGO}`})
+                                                            }else{
+                                                             res.json({'msg': `erro ao gerar vinculo para o produto ${data.CODIGO}`})
+                                                            console.log(prod);
 
+                                                            }
+                                                     
+                                       
                                                  }catch(error){ 
-                                                  //  res.json({'msg': `erro ao gerar vinculo para o produto ${data.CODIGO}`})
+                                                   res.json({'msg': `erro ao gerar vinculo para o produto ${data.CODIGO}`})
                                                }
 
                          }else{ 
-                                                    res.json({'msg': `o produto ${data.CODIGO} nao foi encontrado no bling`})
+                                              res.json({'msg': `o produto ${data.CODIGO} nao foi encontrado no bling`})
 
                         }
                             
@@ -142,53 +157,76 @@ export class ProdutoController {
                 for(const data of produtosEnviados){
                           const resultSaldo:any = await  produto.buscaEstoqueReal(data.codigo_sistema);
 
+                    let saldo_enviado =  data.saldo_enviado;
+                            
+
                           let saldoReal;
                           if(resultSaldo.length > 0  ){
                             saldoReal = resultSaldo[0].ESTOQUE;
                           }else{
                             saldoReal = 0;
                           }
-                        
-                        let estoque=  {
-                            "produto": {
-                              "id": data.Id_bling
-                            },
-                            "deposito": {
-                              "id": idDeposito
-                            },
-                            "operacao": "B",
-                            "preco": 0,
-                            "custo": 0,
-                            "quantidade": saldoReal,
-                            "observacoes": ""
-                          }
 
-                            try{
-                                let status;
-                                let estoqueEnviado;
-                                  estoqueEnviado = await api.config.post('/estoques', estoque);
-                                status = estoqueEnviado.status
-
-                              //  console.log(estoqueEnviado.data);
-
-                                 while(status !== 201){
-                                    await delay(5000);
-                                    estoqueEnviado =  await api.config.post('/estoques', estoque);
-                                     console.log(estoqueEnviado.data);
-                                    status = estoqueEnviado.status
+                          if( saldo_enviado !== saldoReal ){
+                            
+                                    let estoque=  {
+                                        "produto": {
+                                        "id": data.Id_bling
+                                        },
+                                        "deposito": {
+                                        "id": idDeposito
+                                        },
+                                        "operacao": "B",
+                                        "preco": 0,
+                                        "custo": 0,
+                                        "quantidade": saldoReal,
+                                        "observacoes": ""
                                     }
 
+                                        try{
+                                            let status;
+                                            let estoqueEnviado;
+                                            estoqueEnviado = await api.config.post('/estoques', estoque);
+                                            status = estoqueEnviado.status
 
-                                console.log(estoqueEnviado.data);    
-                                console.log(` enviado saldo para produto: ${data.codigo_sistema }   saldo: ${saldoReal}  idBling: ${ data.Id_bling} `);
-                            }catch(err){
-                                console.log(estoque);
-                                    console.log(err + ` erro ao enviar o estoque para o produto ${data.codigo_sistema} `);
-                                
-                                }
-                                await delay(1000);
-                
-                            }
+                                          console.log(estoqueEnviado.status);
+                                            
+                                          if(status !== 201){
+                                            
+                                            while(status !== 201 || status !== 200){
+                                                await delay(2000);
+                                               console.log(` aguardando para enviar saldo para o produto ${data.codigo_sistema}...`)
+                                                estoqueEnviado =  await api.config.post('/estoques', estoque);
+                                               
+                                                status = estoqueEnviado.status
+                                                
+                                                if(status === 201 || status ===200){
+                                                    await produtoApi.atualizaSaldoEnviado(data.Id_bling,saldoReal);
+                                                    console.log(estoqueEnviado.data);    
+                                                    console.log(` enviado saldo para produto: ${data.codigo_sistema }   saldo: ${saldoReal}  idBling: ${ data.Id_bling} `);
+                                                }
+                                                
+                                            }
+
+                                            }else{
+                                                console.log(` enviado saldo para produto: ${data.codigo_sistema }   saldo: ${saldoReal}  idBling: ${ data.Id_bling} `);
+                                                await produtoApi.atualizaSaldoEnviado(data.Id_bling,saldoReal);
+                                            }
+                                                    
+
+                                                    
+                                         }catch(err){
+                                            console.log(estoque);
+                                                console.log(err + ` erro ao enviar o estoque para o produto ${data.codigo_sistema} `);
+                                            
+                                            }
+                                            await delay(2000);
+                                        
+                                        }else{
+
+                                            console.log(`ultimo saldo enviado para o produto ${data.codigo_sistema} igual ao saldo atual, saldo nao enviado`);
+                                        }
+                                 }
                         
                         }
                             console.log('fim do processo')

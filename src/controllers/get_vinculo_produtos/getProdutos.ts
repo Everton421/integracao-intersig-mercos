@@ -42,6 +42,7 @@ export class getProdutos{
 
 
         try{
+          await this.delay(2000);
          
               const response  = await api.config.get(`/produtos`,{
                 params: {
@@ -86,7 +87,6 @@ export class getProdutos{
               const value = {
                   id_bling,codigo_sistema, descricao
               }
-
 
                console.log(value)
             

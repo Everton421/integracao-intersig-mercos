@@ -29,7 +29,7 @@ export class ProdutoApi{
                 let descricaoSemAspas = this.formatDescricao(descricao);
                 
 
-                const sql = ` INSERT INTO ${database_api}.produtos VALUES ('${id_bling}','${descricaoSemAspas}','${codigo_sistema}', '${dataInsercao}')` 
+                const sql = ` INSERT INTO ${database_api}.produtos VALUES ('${id_bling}','${descricaoSemAspas}','${codigo_sistema}', '${dataInsercao}','0')` 
 
                 await conn_api.query(sql, (err, result)=>{
                     if(err){
@@ -43,7 +43,7 @@ export class ProdutoApi{
 
         async buscaTodos(){
             return new Promise( async ( resolve, reject )=>{
-                const sql = ` SELECT p.codigo_sistema , p.descricao, p.Id_bling, ps.SKU sku, ps.ESTOQUE estoque  
+                const sql = ` SELECT p.codigo_sistema , p.descricao, p.Id_bling, ps.SKU sku, ps.ESTOQUE estoque, saldo_enviado  
                  FROM ${database_api}.produtos  p
                  JOIN ${db_estoque}.prod_saldo ps on ps.CODIGO = p.codigo_sistema 
                  ORDER BY p.Id_bling  ASC
@@ -72,6 +72,18 @@ export class ProdutoApi{
             })
         } 
 
+        async atualizaSaldoEnviado( id:any, saldo:any ){
+            return new Promise( async ( resolve, reject )=>{
+                const sql = ` UPDATE ${database_api}.produtos set saldo_enviado = ${saldo} WHERE  Id_bling = ${id} ;`
 
+                await conn_api.query(sql, (err, result )=>{
+                    if(err){
+                        reject(err);
+                    }else{
+                        resolve(result);
+                    }
+                })
+            })
+        } 
 
 }

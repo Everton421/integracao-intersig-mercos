@@ -1,129 +1,128 @@
 import { Response, Request } from "express";
 import { ProdutoModelo } from "../../models/produto/produtoModelo";
-import { conn,db_publico } from "../../database/databaseConfig";
-import { ProdutoBling } from "../../interfaces/produtoBling";
 import ConfigApi from "../../Services/api";
 import { ProdutoApi } from "../../models/produtoApi/produtoApi";
-import { imgController } from "../imgBB/imgController";
 import { categoriaController } from "../categoria/categoriaController";
 import { verificaTokenTarefas } from "../../Middlewares/TokenMiddleware";
-// import { api } from "../../Services/api";
+import { SyncProduct } from "../../Services/syncProducts.ts/SyncProduct";
 
 export class ProdutoController {
-
-
+  
+  
+ 
     
     async enviaProduto( req:Request, res:Response) {
-        const categoriacontroller = new categoriaController();
-
-        console.log(parseInt(req.body.produto));
-        console.log("");
-        console.log("");
-
-       const  produtoSelecionado:any =  parseInt(req.body.produto);
-       const tabelaSelecionada:any = req.body.tabela; 
-
-        const  api:any = new ConfigApi();
-        const produto = new ProdutoModelo();
-        const produtoApi = new ProdutoApi();
-
-
+         
         function delay(ms: number) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-            async function envio(){
-               
-                let produtos:any =[];
+       const  produtoSelecionados:string[] = req.body.produtos  ;
 
-                if(produtoSelecionado === '*' ){
-                     produtos  = await produto.buscaProdutos();
-                     console.log(produtoSelecionado)
-                }else{
-                    try{
-                     produtos  = await produto.buscaProduto(produtoSelecionado);
-                    }catch(err){ console.log(`erro ao consultar o produto ${produtoSelecionado} `)}
-                    }
-                
-                if(produtos.length > 0 ){
-                 
-                for (const data of produtos ){
-                    
+        const produto = new ProdutoModelo();
+        const produtoApi = new ProdutoApi();
+        
+        const syncProduct = new SyncProduct();
+        let responseIntegracao 
+                        
+        if( Array.isArray(produtoSelecionados)  ){
 
-                    const produtoSincronizado:any = await produtoApi.busca(data.CODIGO);
+            responseIntegracao = await Promise.all(
+                produtoSelecionados.map( async (i)=>{
+                                        const codigoSistema:number = parseInt(i);
+                                        const produtoSincronizado = await produtoApi.findByCodeSystem( parseInt(i));
 
-                    
+                                        const resultSaldoProduto = await produto.buscaEstoqueReal(codigoSistema)
+                                        const saldoProduto =  resultSaldoProduto[0].ESTOQUE;
 
-                 if(produtoSincronizado.length > 0 ){
-                    console.log(`produto ${data.CODIGO} ja foi enviado  `);
-                                                 return    res.json({'msg': `produto ${data.CODIGO} ja foi enviado`})
-                                                     // console.log(`produto ${data.CODIGO} ja foi enviado  `)
-       
-                    }else{
-                            let produtoSemVinculo:any = [];
-                            let codErp:any= data.CODIGO;
+                                        const resultDeposito = await produtoApi.findDefaultDeposit();
+                                        let idDepositoBling;
+                                            if(resultDeposito.length > 0 ){
+                                                idDepositoBling = resultDeposito[0].Id_bling;
+                                            }else{
+                                              idDepositoBling = await syncProduct.getDeposit(); 
+                                            }
+                                         
+                                       //verifica se ja foi enviado, consultando o banco da integração
+                                       if(produtoSincronizado.length > 0 ){
+                                                    
+                                        let resultSaldoEnviado :any[]=[]
+                                                        let resultPostEstoque
 
-                            try{
-                                 
-                                produtoSemVinculo = await api.config.get('/produtos',{
-                                    params: { 
-                                        pagina: 1,
-                                        limite: 100,
-                                        criterio: 2,
-                                        tipo: 'P',
-                                        codigo: codErp
-                                    }
-                                } )
-                            }catch(err){}
+                                                            await delay(1000)
+                                                                 resultPostEstoque =  await syncProduct.postEstoque( produtoSincronizado[0].Id_bling, saldoProduto, idDepositoBling, produtoSincronizado[0].codigo_sistema)
+                                                                resultSaldoEnviado.push(resultPostEstoque)
+                                                return  resultPostEstoque ;       
+                                                            
+                                        }else{  
+                                            // produto não foi enviado ainda, é necessario fazer o primeiro envio
+                                            await  delay(1000)
+                                                let resultVinculo =  await syncProduct.getVinculoProduto( { codigo: codigoSistema  })
+                                                
+                                            if(   resultVinculo?.ok ){
+                                                    await   delay(1000)
+                                                    let prodVinculo;
+                                                    let resultEstoque;
+                                                    if( resultVinculo?.produto !== null ){
+                                                            prodVinculo = resultVinculo?.produto
+                                                    
+                                                        resultEstoque = await syncProduct.postEstoque( prodVinculo.id_bling, saldoProduto, idDepositoBling, prodVinculo?.codigo_sistema)
+                                                        } 
+                                                        return   resultEstoque 
+                                                    }else{
+                                              // console.log(`ocorreu um erro ao tentar registrar o vinculo do produto ${codigoSistema}`)
+                                            //  responseIntegracao = resultVinculo; 
+                                                     //   let formatresult :{ ok:boolean, erro:boolean, msg:string[] } | undefined = { ok:resultVinculo?.ok, erro: resultVinculo?.erro, msg:resultVinculo.msg }
+                                                return  resultVinculo ;
+                                                }
+                                        }     
+                                                 
+                                            
+                            })
+                    )
+         
 
-                            console.log(produtoSemVinculo.data.data.length);
-                         if( produtoSemVinculo.data.data.length > 0 ){
-
-                            const produtoEnviado = {
-                                                  id_bling : produtoSemVinculo.data.data[0].id,
-                                                  codigo_sistema : data.CODIGO,
-                                                   descricao: data.DESCRICAO
-                                                           }
-                                        
-                                               try{
-                                                      
-                                                        let prod:any =  await produtoApi.inserir(produtoEnviado);
-                                                            if(prod.affectedRows === 1){
-                                                                console.log(`gerado vinculo para o produto ${data.CODIGO}`);
-                                                                res.json({'msg': `gerado vinculo para o produto ${data.CODIGO}`})
-                                                            }else{
-                                                             res.json({'msg': `erro ao gerar vinculo para o produto ${data.CODIGO}`})
-                                                            console.log(prod);
-
-                                                            }
-                                                     
-                                       
-                                                 }catch(error){ 
-                                                   res.json({'msg': `erro ao gerar vinculo para o produto ${data.CODIGO}`})
-                                               }
-
-                         }else{ 
-                                              res.json({'msg': `o produto ${data.CODIGO} nao foi encontrado no bling`})
-
-                        }
-                            
-                          }
-                                 
-                    await delay(2000);
-                }
-            } else{
-                console.log("produto invalido!");
-            }
-
-                return ;
-            }
-            try{
-                envio();
-            }catch(err){
-                console.log(err);
-            }
+        }else{
+            console.log(" é necessario que seja informado um array com os codigos dos produtos")
+        }
+ 
+          return res.status(200).json({ msg:responseIntegracao?.map((i)=> i?.msg)})
 
     }
+    
+    async novoEnvioEstoque( req:Request, res:Response){
+        
+            const  produtoSelecionados:string[] = req.body.produtos  ;
+            const produto = new ProdutoModelo();
+            const syncProduct = new SyncProduct();
+            const produtoApi = new ProdutoApi();
+
+
+            if( Array.isArray(produtoSelecionados)  ){
+                    produtoSelecionados.forEach( async (i)=>{
+                       
+                          const codigoSistema:number = parseInt(i);
+                          const resultDeposito = await produtoApi.findDefaultDeposit();
+                          const produtoSincronizado = await produtoApi.findByCodeSystem( parseInt(i));
+
+                              let idDepositoBling;
+                            if(resultDeposito.length > 0 ){
+                                  idDepositoBling = resultDeposito[0].Id_bling;
+                            }else{
+                               idDepositoBling = await syncProduct.getDeposit(); 
+                            }
+
+                         produtoSincronizado.forEach( async (i)=>{
+                                    const resultSaldoProduto = await produto.buscaEstoqueReal(codigoSistema)
+                                    const saldoProduto =  resultSaldoProduto[0].ESTOQUE;
+                                            await syncProduct.postEstoque(i.Id_bling, saldoProduto,idDepositoBling,i.codigo_sistema)
+
+                                        })
+
+                                })
+                    }
+
+        }
 
 
     async enviaEstoque(){
@@ -133,25 +132,29 @@ export class ProdutoController {
         }
 
                     const  api:any = new ConfigApi();
-
                     const produtoApi = new ProdutoApi();
-
                     const produto = new ProdutoModelo();
+                    const syncProduct = new SyncProduct();
 
         try{
             await api.configurarApi(); // Aguarda a configuração da API
                 
-             const deposito = await api.config.get('/depositos');
-            
-             if(!deposito.data.data){
-                console.log("nao encontrado deposito no bling");
-             }
-
-             const idDeposito = deposito.data.data[0].id;
-
+          
+                            const resultDeposito = await produtoApi.findDefaultDeposit();
                     
+                           let idDepositoBling;
+                            if(resultDeposito.length > 0 ){
+                                  idDepositoBling = resultDeposito[0].Id_bling;
+                            }else{
+                               idDepositoBling = await syncProduct.getDeposit(); 
+                                if(!idDepositoBling || isNaN(idDepositoBling) ){
+                                        console.log("ocoreu um erro ao tentar obter o deposito")
+                                    return;
+                                }   
+                            }
 
-                const produtosEnviados:any = await produtoApi.buscaTodos();
+
+                const produtosEnviados:any = await produtoApi.buscaSincronizados();
                 if(produtosEnviados.length > 0 ){
 
                 for(const data of produtosEnviados){
@@ -174,7 +177,7 @@ export class ProdutoController {
                                         "id": data.Id_bling
                                         },
                                         "deposito": {
-                                        "id": idDeposito
+                                        "id": idDepositoBling
                                         },
                                         "operacao": "B",
                                         "preco": 0,
@@ -205,15 +208,12 @@ export class ProdutoController {
                                                     console.log(estoqueEnviado.data);    
                                                     console.log(` enviado saldo para produto: ${data.codigo_sistema }   saldo: ${saldoReal}  idBling: ${ data.Id_bling} `);
                                                 }
-                                                
                                             }
 
                                             }else{
                                                 console.log(` enviado saldo para produto: ${data.codigo_sistema }   saldo: ${saldoReal}  idBling: ${ data.Id_bling} `);
                                                 await produtoApi.atualizaSaldoEnviado(data.Id_bling,saldoReal);
                                             }
-                                                    
-
                                                     
                                          }catch(err){
                                             console.log(estoque);
@@ -234,7 +234,6 @@ export class ProdutoController {
        }catch( error ){
                  console.log(error )
                  }
-
     }
 
 

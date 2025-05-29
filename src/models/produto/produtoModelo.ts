@@ -37,14 +37,31 @@ export class ProdutoModelo{
  
    }
 
-  async buscaEstoqueReal(codigo:number ){
-    return new Promise( (resolve, reject)=>{
-      
+  async buscaEstoqueReal(codigo:number ):Promise<[{CODIGO:number, ESTOQUE:number }]>{
+    return new Promise( async (resolve, reject)=>{
                           
-    const sqlEstoque=` SELECT  CODIGO, ESTOQUE from ${db_estoque}.prod_saldo
-                          WHERE CODIGO = ${codigo};
-                        `
-    conn.query( sqlEstoque ,(err:any , result:any)=>{
+     const sql = `
+                  SELECT  
+                      est.CODIGO,
+                      IF(est.estoque < 0, 0, est.estoque) AS ESTOQUE
+                    FROM 
+                      (SELECT
+                        P.CODIGO,
+                        (SUM(PS.ESTOQUE) - 
+                          (SELECT COALESCE(SUM((IF(PO.QTDE_SEPARADA > (PO.QUANTIDADE - PO.QTDE_MOV), PO.QTDE_SEPARADA, (PO.QUANTIDADE - PO.QTDE_MOV)) * PO.FATOR_QTDE) * IF(CO.TIPO = '5', -1, 1)), 0)
+                            FROM ${db_vendas}.cad_orca AS CO
+                            LEFT OUTER JOIN ${db_vendas}.pro_orca AS PO ON PO.ORCAMENTO = CO.CODIGO
+                            WHERE CO.SITUACAO IN ('AI', 'AP', 'FP')
+                            AND PO.PRODUTO = P.CODIGO)) AS estoque
+                      FROM ${db_estoque}.prod_setor AS PS
+                      LEFT JOIN ${db_publico}.cad_prod AS P ON P.CODIGO = PS.PRODUTO
+                      INNER JOIN ${db_publico}.cad_pgru AS G ON P.GRUPO = G.CODIGO
+                      LEFT JOIN ${db_estoque}.setores AS S ON PS.SETOR = S.CODIGO
+                      WHERE P.CODIGO = ${codigo}
+                      GROUP BY P.CODIGO) AS est;
+                `
+
+   await conn.query( sql ,(err:any , result:any)=>{
       if(err){
         reject(err)
         console.log('erro ao obter o saldo de estoque')
@@ -54,6 +71,7 @@ export class ProdutoModelo{
     })
     })
   }
+
 
 
   async buscaTabelaDePreco( ){

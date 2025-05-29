@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -119,85 +117,10 @@
     </nav>
 
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-        <style>
-            @media print {
-                #no-print {
-                    display: none;
-                }
-    
-                .print-border {
-                    border: 2px solid #000 !important;
-                    font-size: 12px;
-                }
-            }
-        </style>
-    
-        <nav class="navbar navbar-expand-lg navbar-light ">
-            <div class="container-fluid">
-            <!--    <a class="navbar-brand" href="/">HOME</a>-->
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-                    aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
-                    
-                        <form class="d-flex" id="no-print" action="/api/produtos" method="post">
-                         
-                                <select id="produto" name="produto" class="form-select" aria-label="Default select example">
-                                    <option selected   >produtos</option>
-    
-                                    <% produtos.forEach((v)=>{ %>
-                                        <option value="<%= v.CODIGO %> "><%=v.CODIGO %> <%=v.DESCRICAO %> </option>
-    
-                                       <% }) %>
-                                </select>
-    
-                          <!---      <select id="tabela" name="tabela" class="form-select" aria-label="Default select example">
-                                    
-                                    <% tabelas.forEach( (tabela)=> { %>
-                                        <option selected value="<%= tabela.CODIGO %>"><%= tabela.DESCRICAO %> </option>
-    
-                                    <% }) %>
-                                    
-                                </select>-->
-                                <!-- Adicione campos ocultos para enviar as datas e o vendedor -->
-                            <button class="btn btn-outline-success" type="submit">enviar</button>
-                        </form>
-    
-    
-                </div>
-            </div>
-        </nav>
-        <div class="container-fluid">
-        <div class="container-sm">
-            <div class="container-sm">
-                
-                <ol class="list-group list-group-flush">
-                
-                    <% sincronizados.forEach((value, index) => { %>
-                       <li class="list-group-item py-1">
-                          
-                            <div> 
-                              Código: <%= value.codigo_sistema %>
-                            </div>
-                            <div class="fw-bold"><%= value.descricao %></div>
-                            <div class="fw-bold">
-                            saldo: <span class="badge bg-primary rounded-pill"> <%= value.estoque %></span>
-                          </div>
-                          <div class="fw-bold">
-                            Sku: <span  >   <%= value.sku %></span>
-                          </div>
-                          </li>
-                   
-                    <% }) %>
-                </ol>
-    </div>
-    </div>
-    
-    
-    
+     <!---
+     <%- include('teste.ejs') %>
+      tela em branco
+    -->
 
       <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
 
@@ -211,43 +134,4 @@
 
       <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js" integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js" integrity="sha384-zNy6FEbO50N+Cg5wap8IKA4M/ZnLJgzc6w2NqACZaK0u0FXfOWRRJOnQtpZun8ha" crossorigin="anonymous"></script><script src="dashboard.js"></script>
   </body>
-</html>
-
-
-
-<script>
-    $(document).ready(function() {
-        // Intercepta o envio do formulário
-        $('#no-print').submit(function(event) {
-            // Impede o envio padrão do formulário
-            event.preventDefault();
-            
-            // Realiza a requisição AJAX para enviar os dados do formulário
-            $.ajax({
-                url: $(this).attr('action'),
-                type: $(this).attr('method'),
-                data: $(this).serialize(),
-                success: function(response) {
-                    // Exibe um alerta de sucesso
-                    alert(response.msg);
-                    console.log(response);
-                    
-                    // Redireciona para outra página ou atualiza a lista de produtos sincronizados
-                    // Exemplo: window.location.href = '/outra_pagina';
-                },
-                error: function(xhr, status, error) {
-                    // Exibe um alerta de erro caso a requisição falhe
-                    alert('Erro ao enviar produto: ' + error);
-                    console.log(error);
-                }
-            });
-        });
-    });
-</script>
-
-
-      
-
-</body>
-
 </html>

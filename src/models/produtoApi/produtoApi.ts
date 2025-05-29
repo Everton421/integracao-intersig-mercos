@@ -1,4 +1,52 @@
-import { conn_api, database_api, db_estoque } from "../../database/databaseConfig"
+import { conn_api, database_api, db_estoque, db_publico, db_vendas } from "../../database/databaseConfig"
+import { DateService } from "../../Services/dateService/date-service"
+
+type IProdutoApi={
+    Id_bling: string
+    descricao:string
+    codigo_sistema:number
+    data_envio:string
+    saldo_enviado:number
+    variacao: 'S' | 'N'
+}
+
+type IProdutoApiSystem= {
+    Id_bling: string
+    descricao:string
+    codigo_sistema:number
+    data_envio:string
+    saldo_enviado:number
+    variacao: 'S' | 'N'
+
+    CODIGO:number
+    DESCRICAO:string
+    /**  descricao vinda da tabela do sistema */
+
+}
+
+type inputProdApi = {
+id_bling:string 
+ codigo_sistema:number
+  descricao:string
+  saldo:number,
+  variacao:'S'| 'N' | string
+} 
+
+
+type IDeposito  = {
+      Id_bling:string 
+    descricao:string
+    situacao:number
+    padrao: 'S' | 'N'
+}
+
+type InputDeposito  = {
+    id_bling:string 
+    descricao:string
+    situacao:number
+    padrao: 'S' | 'N'
+}
+
 
 export class ProdutoApi{
 
@@ -6,30 +54,15 @@ export class ProdutoApi{
     return descricao.replace(/'/g, '');
     }
 
-        async inserir( value:any ){
-            const now = new Date(); // Obtém a data e hora atuais
-
-            const dia = String(now.getDate()).padStart(2, '0');
-            const mes = String(now.getMonth() + 1).padStart(2, '0');
-            const ano = now.getFullYear();
-      
-            const hora = String(now.getHours()).padStart(2, '0'); // Adiciona um zero à esquerda se for menor que 10
-            const minuto = String(now.getMinutes()).padStart(2, '0'); // Adiciona um zero à esquerda se for menor que 10
-            const segundo = String(now.getSeconds()).padStart(2, '0'); // Adiciona um zero à esquerda se for menor que 10
-      
-            const dataInsercao = `${ano}-${mes}-${dia} ${hora}:${minuto}:${segundo}`;
-
+        async inserir( value:inputProdApi ){
+          
+            const dateService = new DateService();
             return new Promise( async (resolve, reject)=>{
-                
 
-
-                const { id_bling, codigo_sistema , descricao} = value;
-
-
+                const { id_bling, codigo_sistema , descricao, saldo, variacao} = value;
                 let descricaoSemAspas = this.formatDescricao(descricao);
-                
 
-                const sql = ` INSERT INTO ${database_api}.produtos VALUES ('${id_bling}','${descricaoSemAspas}','${codigo_sistema}', '${dataInsercao}','0')` 
+                const sql = ` INSERT INTO ${database_api}.produtos VALUES ('${id_bling}','${descricaoSemAspas}','${codigo_sistema}', '${dateService.obterDataHoraAtual()}', '${saldo}', '${variacao}')` 
 
                 await conn_api.query(sql, (err, result)=>{
                     if(err){
@@ -41,15 +74,20 @@ export class ProdutoApi{
             })
         }
 
-        async buscaTodos(){
-            return new Promise( async ( resolve, reject )=>{
-                const sql = ` SELECT p.codigo_sistema , p.descricao, p.Id_bling, ps.SKU sku, ps.ESTOQUE estoque, saldo_enviado  
-                 FROM ${database_api}.produtos  p
-                 JOIN ${db_estoque}.prod_saldo ps on ps.CODIGO = p.codigo_sistema 
-                 ORDER BY p.Id_bling  ASC
 
+
+        async buscaTodos():Promise <IProdutoApiSystem[]> {
+            return new Promise( async ( resolve, reject )=>{
+               const sql = `  
+
+                     SELECT 
+                           itp.*,
+                            P.CODIGO,P.DESCRICAO
+                      from ${db_publico}.cad_prod P
+                          LEFT JOIN  ${database_api}.produtos AS itp ON itp.codigo_sistema = P.CODIGO
+                          WHERE P.NO_SITE = 'S' AND P.ATIVO = 'S'
                 ;`
-                await conn_api.query(sql, (err, result)=>{
+                await conn_api.query(sql, (err, result:IProdutoApiSystem[])=>{
                     if(err){
                         reject(err);
                     }else{
@@ -59,10 +97,38 @@ export class ProdutoApi{
             })
         }
 
-        async busca( produto:any ){
+        async buscaSincronizados(){
             return new Promise( async ( resolve, reject )=>{
-                const sql = ` SELECT * FROM ${database_api}.produtos WHERE  codigo_sistema = ${produto} ;`
-                await conn_api.query(sql, (err, result )=>{
+               const sql = `  SELECT * FROM ${database_api}.produtos ;`
+
+                await conn_api.query(sql, (err, result:IProdutoApi[])=>{
+                    if(err){
+                        reject(err);
+                    }else{
+                        resolve(result);
+                    }
+                })
+            })
+        }
+
+      async findByIdBling( id:string ):Promise <IProdutoApi[]> {
+            return new Promise( async ( resolve, reject )=>{
+                const sql = ` SELECT * FROM ${database_api}.produtos WHERE  Id_bling = '${id}' ;`
+                await conn_api.query(sql, (err, result:IProdutoApi[] )=>{
+                    if(err){
+                        reject(err);
+                    }else{
+                        resolve(result);
+                    }
+                })
+            })
+        } 
+       
+
+        async findByCodeSystem( codigo:number ):Promise <IProdutoApi[]> {
+            return new Promise( async ( resolve, reject )=>{
+                const sql = ` SELECT * FROM ${database_api}.produtos WHERE  codigo_sistema = ${codigo} ;`
+                await conn_api.query(sql, (err, result:IProdutoApi[] )=>{
                     if(err){
                         reject(err);
                     }else{
@@ -85,5 +151,38 @@ export class ProdutoApi{
                 })
             })
         } 
+
+        async findDefaultDeposit() :Promise<IDeposito[]>{
+               return new Promise( async ( resolve, reject )=>{
+                const sql = ` SELECT * FROM ${database_api}.depositos WHERE  padrao = 'S' ;`
+                await conn_api.query(sql, (err, result:IDeposito[] )=>{
+                    if(err){
+                        reject(err);
+                    }else{
+                        resolve(result);
+                    }
+                })
+            })
+        }
+
+         async insertDeposit( value:InputDeposito ){
+          
+            const dateService = new DateService();
+            return new Promise( async (resolve, reject)=>{
+
+                const { id_bling, descricao, padrao, situacao} = value;
+                let descricaoSemAspas = this.formatDescricao(descricao);
+
+                const sql = ` INSERT INTO ${database_api}.depositos VALUES ('${id_bling}','${descricao}','${situacao}', '${padrao }')` 
+
+                await conn_api.query(sql, (err, result)=>{
+                    if(err){
+                        reject(err);
+                    }else{
+                        resolve(result);
+                    }
+                })
+            })
+        }
 
 }

@@ -30,13 +30,16 @@ router.get('/config', async  ( req, res )=>{
 router.get('/produtos', verificaToken , async (req,res) =>{
    const objProdutos = new ProdutoModelo();
     const objSincronizados = new ProdutoApi();
-    const sincronizados = await objSincronizados.buscaTodos();
-  const produtos = await objProdutos.buscaProdutos();
+    const produtos = await objSincronizados.buscaTodos();
   const tabelas = await objProdutos.buscaTabelaDePreco();
-res.render('produtos',{'produtos' : produtos, 'sincronizados':sincronizados, 'tabelas': tabelas});
+res.render('produtos',{'produtos' : produtos,   'tabelas': tabelas});
  })
 
- router.post('/api/produtos', verificaToken, new ProdutoController().enviaProduto)
+ router.post('/api/produtos', verificaToken,  async (req:Request,res:Response )=>{
+    const obj =   new ProdutoController()  
+    let result = await obj.enviaProduto(req,res);
+
+  })
 
 
   router.get('/callback', async (req, res, next) => {

@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { conn_api, database_api } from "../database/databaseConfig";
 import axios from "axios";
-import { TokenController } from "../controllers/token/tokenController";
-import { TokenModelo } from "../models/token/tokenModelo";
+import { TokenController } from "../controllers/token-controller/token-controller";
+import { ApiTokenRepository } from "../dataAcess/api-token-repository/api-token-repository";
 
 
 export async function verificaToken(req: Request, res: Response, next: NextFunction) {
@@ -14,7 +14,7 @@ export async function verificaToken(req: Request, res: Response, next: NextFunct
               
                const url_bling:any = process.env.BASE_URL
                 
-              const objToken = new TokenModelo();
+              const objToken = new ApiTokenRepository();
 
     const tokenBD:any = await objToken.buscaToken(); // token registrado no banco 
 
@@ -94,7 +94,7 @@ export async function verificaTokenTarefas() {
    
     const url_bling:any = process.env.BASE_URL
      
-   const objToken = new TokenModelo();
+   const objToken = new ApiTokenRepository();
 
 const tokenBD:any = await objToken.buscaToken(); // token registrado no banco 
 

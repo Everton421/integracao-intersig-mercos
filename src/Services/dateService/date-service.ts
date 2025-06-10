@@ -1,7 +1,18 @@
 
 export class DateService {
 
-      formatarDataHora(data: any): string {
+   
+
+      obterHoraAtual(){
+        const now = new Date(); // Obtém a data e hora atuais
+        const hora = String(now.getHours()).padStart(2, '0'); // Adiciona um zero à esquerda se for menor que 10
+        const minuto = String(now.getMinutes()).padStart(2, '0'); // Adiciona um zero à esquerda se for menor que 10
+        const segundo = String(now.getSeconds()).padStart(2, '0'); // Adiciona um zero à esquerda se for menor que 10
+        const horaInsercao = `${hora}:${minuto}:${segundo}`; 
+        return horaInsercao;
+      }
+
+        formatarDataHora(data: any): string {
         
             if (!(data instanceof Date)) {
               try {

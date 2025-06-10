@@ -125,7 +125,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/servicos">
+                            <a class="nav-link"  >
                                 <span data-feather="briefcase"></span>
                                 Serviços
                             </a>
@@ -150,9 +150,15 @@
                     </h6>
                     <ul class="nav flex-column mb-2">
                         <li class="nav-item">
-                            <a class="nav-link" href="/logs/geral">
+                            <a class="nav-link"  >
                                 <span data-feather="file-text"></span>
                                 Logs Gerais
+                            </a>
+                        </li>
+                          <li class="nav-item">
+                            <a class="nav-link" href="/configuracoes">
+                                <span data-feather="settings"></span>
+                                Configurações
                             </a>
                         </li>
                     </ul>
@@ -188,10 +194,10 @@
                                     </span>
                                 </p>
                                 <!-- Formulário para acionar a sincronização -->
-                                <form action="/produtos/trigger" method="get" class="d-inline">
+                                <form action="/produtos" method="get" class="d-inline">
                                     <button type="submit" class="btn btn-primary btn-sm">Sincronizar Agora</button>
                                 </form>
-                                <a href="/produtos/logs" class="btn btn-outline-secondary btn-sm ms-2">Ver Logs</a>
+                                <a   class="btn btn-outline-secondary btn-sm ms-2">Ver Logs</a>
                             </div>
                             <div class="card-footer">
                                 <small class="text-muted">Total Sincronizado: <span id="totalProdutos"><%= locals.statusProdutos ? statusProdutos.total : 0 %></span></small>
@@ -210,10 +216,10 @@
                                         <%= locals.statusClientes ? (statusClientes.success ? 'Sucesso' : 'Pendente') : 'Desconhecido' %>
                                     </span>
                                 </p>
-                                <form action="/clientes/trigger" method="get" class="d-inline">
+                                <form action="/clientes" method="get" class="d-inline">
                                     <button type="submit" class="btn btn-primary btn-sm">Sincronizar Agora</button>
                                 </form>
-                                <a href="/clientes/logs" class="btn btn-outline-secondary btn-sm ms-2">Ver Logs</a>
+                                <a   class="btn btn-outline-secondary btn-sm ms-2">Ver Logs</a>
                             </div>
                             <div class="card-footer">
                                 <small class="text-muted">Total Sincronizado: <span id="totalClientes"><%= locals.statusClientes ? statusClientes.total : 0 %></span></small>
@@ -233,10 +239,10 @@
                                         <%= locals.statusPedidos ? (statusPedidos.success ? 'Sucesso' : 'Pendente') : 'Desconhecido' %>
                                     </span>
                                 </p>
-                                <form action="/pedidos/trigger" method="get" class="d-inline">
+                                <form action="/pedidos" method="get" class="d-inline">
                                     <button type="submit" class="btn btn-primary btn-sm">Sincronizar Agora</button>
                                 </form>
-                                <a href="/pedidos/logs" class="btn btn-outline-secondary btn-sm ms-2">Ver Logs</a>
+                                <a   class="btn btn-outline-secondary btn-sm ms-2">Ver Logs</a>
                             </div>
                             <div class="card-footer">
                                 <small class="text-muted">Total Sincronizado: <span id="totalPedidos"><%= locals.statusPedidos ? statusPedidos.total : 0 %></span></small>

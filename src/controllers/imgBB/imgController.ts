@@ -3,9 +3,9 @@ import fs from "fs";
 import path from "path";
 
 import FormData, { promises } from "form-data";
-import { ProdutoModelo } from "../../models/produto/produtoModelo";
+import { ProdutoRepository } from "../../dataAcess/produto-repository/produto-repository";
 
-export class imgController{
+export class ImgController{
 
 async postIMGBB ( caminho:string , foto:string ){
     return new Promise( async (resolve, reject)=>{
@@ -53,7 +53,7 @@ async postIMGBB ( caminho:string , foto:string ){
 
 async postFoto( data:any ){
 
-    const produto = new ProdutoModelo();
+    const produto = new ProdutoRepository();
 
     const caminhoImg:any = await produto.buscaCaminhoFotos();
     const fotosProduto:any = await produto.buscaFotos(data.CODIGO);

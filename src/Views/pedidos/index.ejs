@@ -65,7 +65,7 @@
                     </div>
                 </div>
 
-                     <% if (pedidos && pedidos.pedidos && pedidos.pedidos.length > 0) { %>
+                     <% if (pedidos && pedidos.length > 0) { %>
                     <p>Total de pedidos encontrados: <span class="badge bg-info"><%= pedidos.length %></span></p>
                     <div class="table-responsive">
                         <table class="table table-striped table-hover table-bordered table-sm">
@@ -78,11 +78,11 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <% pedidos.pedidos.forEach((item, index) => { %>
+                                <%  pedidos.forEach((item, index) => { %>
                                     <tr>
                                         <th scope="row"><%= index + 1 %></th>
-                                        <td><%= item.codigo %></td>
-                                        <td><%= item.nome || item.DESCRICAO || 'N/A' %></td> <%# Ajuste para o nome do seu campo %>
+                                        <td><%= item.codigo_sistema %></td>
+                                        <td><%= item.nome || item.NOME || 'N/A' %></td> <%# Ajuste para o nome do seu campo %>
                                         <td class="price-column">
                                             <%# Formatação de moeda (BRL) %>
                                             <% if (typeof item.total_geral=== 'number') { %>
@@ -99,7 +99,7 @@
                     </div>
                 <% } else { %>
                     <div class="alert alert-warning" role="alert">
-                        Nenhum produto sincronizado encontrado.
+                        Nenhum pedido sincronizado encontrado.
                     </div>
                 <% } %>
 

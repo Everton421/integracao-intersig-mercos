@@ -1,24 +1,24 @@
 import { pro_orca } from "./pro_orca"
 
 export interface cad_orca{
-    codigo_site:string,
-    status:number,  
-    cliente:number,
-    total_produtos:number,
-    desc_prod:number, 
-    total_geral:number,
-    data_pedido:any,
-    valor_frete:number,
-    situacao:string,
-    data_cadastro:any,
-    hora_cadastro:any,
-    data_inicio:any,
-    hora_inicio:any,
-    vendedor:number,
-    contato:string,
-    observacoes:string,
-    observacoes2:string,
-    tipo:number,
+    COD_SITE:string,
+    STATUS:number,  
+    CLIENTE:number,
+    TOTAL_PRODUTOS:number,
+    DESC_PROD:number, 
+    TOTAL_GERAL:number,
+    DATA_PEDIDO:any,
+    VALOR_FRETE:number,
+    SITUACAO:string,
+    DATA_CADASTRO:any,
+    HORA_CADASTRO:any,
+    DATA_INICIO:any,
+    HORA_INICIO:any,
+    VENDEDOR:number,
+    CONTATO:string,
+    OBSERVACOES:string,
+    OBSERVACOES2:string,
+    TIPO:number,
     NF_ENT_OS:string,
     RECEPTOR:string,
     VAL_PROD_MANIP:any, 
@@ -33,8 +33,6 @@ export interface cad_orca{
     PESO_LIQUIDO:number,
     BASE_ICMS_UF_DEST:number,
     FORMA_PAGAMENTO:number
-    produtos:pro_orca[]
-    parcelas:any
 }
 /**
   status,  

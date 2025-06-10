@@ -9,7 +9,7 @@ import path from 'path';
 
 import { router } from './routes';
 import { conn } from './database/databaseConfig';
-import { apiController } from './controllers/apiController/apiController';
+import { apiController } from './controllers/api-config-controller/api-config-controller';
 import { verificaTokenTarefas } from './Middlewares/TokenMiddleware';
 
         const app = express();

@@ -1,46 +1,84 @@
 import { Router,Request,Response, NextFunction } from "express";
   
 import 'dotenv/config'; 
-import { TokenController } from "./controllers/token/tokenController";
+import { TokenController } from "./controllers/token-controller/token-controller";
 import { verificaToken } from "./Middlewares/TokenMiddleware";
-import { ProdutoController } from "./controllers/produtos/ProdutoController";
-import { ProdutoApi } from "./models/produtoApi/produtoApi";
-import { ProdutoModelo } from "./models/produto/produtoModelo";
-import { pedidoController } from "./controllers/pedido/pedidoController";
-import { apiController } from "./controllers/apiController/apiController";
-import { configApi } from "./models/configApi/config";
-import { categoriaController } from "./controllers/categoria/categoriaController";
-import { getProdutos } from "./controllers/get_vinculo_produtos/getProdutos";
-const cron = require('node-cron')
+import { ProdutoController } from "./controllers/produtos-controller/produtos-controller";
+import { ProdutoApiRepository } from "./dataAcess/api-produto-repository/produto-api-repository";
+import { ProdutoRepository } from "./dataAcess/produto-repository/produto-repository";
+import { apiController } from "./controllers/api-config-controller/api-config-controller";
+import {  ApiConfigRepository } from "./dataAcess/api-config-repository/api-config-repository";
+import { CategoriaApiRepository } from "./dataAcess/api-categoria-repository/categoria-api-repository";
+import { SyncStock } from "./Services/sync-stock/sync-stock";
+import { PedidoRepository } from "./dataAcess/pedido-repository/pedido-repository";
+import { PedidoApiRepository } from "./dataAcess/api-pedido-repository/pedido-api-repository";
+import { SyncORders } from "./Services/sync-orders/sync-orders";
+import { CategoriaRepository } from "./dataAcess/categoria-repository/categoria-repository";
+import { CategoriaController } from "./controllers/categoria-controller/categoria-controller";
+import { ClienteApiRepository } from "./dataAcess/api-cliente-repository/cliente-api-repositoryi";
+ 
 const router = Router();
 
+
+  const produtoRepository = new ProdutoRepository();
+  const configApi = new apiController();
+  const produtoApiRepository = new ProdutoApiRepository();
+  const categoryRepository = new CategoriaRepository();
+  const apiConfigRepository  = new ApiConfigRepository();
+  const syncEstock = new SyncStock();
+  const pedidoApiRepository = new PedidoApiRepository();
+  const clienteApiRepository = new ClienteApiRepository();
 
 router.get('/', verificaToken,async (req,res) =>{
   res.render('index');
 })
 
 router.get('/config', async  ( req, res )=>{
-  const configApi = new apiController();
-  const objProdutos = new ProdutoModelo();
   const data = await configApi.buscaConfig();
-  const tabelas = await objProdutos.buscaTabelaDePreco();
+  const tabelas = await  produtoRepository.buscaTabelaDePreco();
   res.render('config', {'config':data , 'tabelas':tabelas});
 })
 
 router.get('/produtos', verificaToken , async (req,res) =>{
-   const objProdutos = new ProdutoModelo();
-    const objSincronizados = new ProdutoApi();
-    const produtos = await objSincronizados.buscaTodos();
-  const tabelas = await objProdutos.buscaTabelaDePreco();
+    const produtos = await produtoApiRepository.buscaTodos();
+  const tabelas = await produtoRepository.buscaTabelaDePreco();
 res.render('produtos',{'produtos' : produtos,   'tabelas': tabelas});
  })
 
- router.post('/api/produtos', verificaToken,  async (req:Request,res:Response )=>{
-    const obj =   new ProdutoController()  
-    let result = await obj.enviaProduto(req,res);
-
+ router.get('/categorias', verificaToken, async (req,res)=>{
+    const data = await categoryRepository.buscaGrupoIndex()
+    res.render('categorias',  { 'categorias' : data})
   })
 
+router.get('/clientes', verificaToken, async (req,res)=>{
+    const data = await clienteApiRepository.getClientIntegracao()
+    console.log(data)
+    res.render('clientes',  { 'clientes' : data})
+  })
+
+  
+  router.get('/configuracoes', async (req,res)=>{
+    let dadosConfig = await apiConfigRepository.buscaConfig();
+    let objProdutos = new ProdutoRepository();
+    let tabelasDePreco = await objProdutos.buscaTabelaDePreco();
+    res.render('configuracoes', { dados: dadosConfig[0], tabelas: tabelasDePreco  })
+    
+  })
+
+ router.post('/api/produtos', verificaToken,  async (req:Request,res:Response )=>{
+    const obj =   new ProdutoController()  
+    let dadosConfig = await apiConfigRepository.buscaConfig();
+
+      if( dadosConfig[0].enviar_produtos === 'E' ){
+          await obj.enviaProduto(req,res);
+      }
+      if( dadosConfig[0].enviar_produtos === 'S' ){
+          await obj.geraVinculo(req,res);
+      }
+  })
+
+ 
+  router.post('/api/categorias',  new CategoriaController().postCategory ) 
 
   router.get('/callback', async (req, res, next) => {
    const apitokenController = new TokenController;
@@ -48,31 +86,22 @@ res.render('produtos',{'produtos' : produtos,   'tabelas': tabelas});
   });
 
 
-router.get('/pedidos',verificaToken, new pedidoController().buscaPedidosBling) 
-router.get('/estoque',verificaToken, new ProdutoController().enviaEstoque) 
-
-
-
-router.post('/teste', async (req,res)=>{
-  const au = JSON.stringify(req.body);
-   //console.log(req.body)
-  const obj = new configApi();
-  let a = await obj.atualizaDados(req.body) 
-  
+router.get('/pedidos', async ( req,res )=>{
+  let dados = await pedidoApiRepository.findAll();
+  res.render('pedidos', { pedidos: dados})
 })
 
 
-router.get('/postEstoque', async (req,res)=>{
-  const obj = new ProdutoController();
-  await obj.enviaEstoque();  
-})
+router.get('/estoque',verificaToken, async ()=>{
+    let dadosConfig = await apiConfigRepository.buscaConfig();
+    if(dadosConfig[0].enviar_estoque > 0  ){
+       await syncEstock.enviaEstoque();
+      }
+}) 
 
+  router.post('/ajusteConfig',verificaToken, new apiController().ajusteConfig )
+ 
 
-
-router.get('/getProdutos',verificaToken,async( req,res)=>{
-  const aux = new getProdutos();
-   await aux.criarVinculo();
-  })
   
 
      export {router} 

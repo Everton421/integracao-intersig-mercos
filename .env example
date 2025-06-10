@@ -1,25 +1,43 @@
-PORT_API=8000
+ 
 
-CLIENT_ID=6a6e3164f476ca3e19a3975214c6e6c4035eb5d7
-CLIENT_SECRET=5d328437a094b16aa756dbc7f695f32c9a4283bc456a46163df8298218a6
+#porta para api 
+PORT_API=0000
+
+ CLIENT_ID= 00000000000000000000
+ CLIENT_SECRET=00000000000000000000
+ 
+
+ 
 BASE_URL='https://www.bling.com.br/Api/v3'
 
 
+#####################################################################
+# o banco da integracao precisa estar no mesmo host do sistema 
+#####################################################################
 
 
-        HOST=' ' #host que ira receber os dados  
-        PORT_DB=3306 #porta
-        USER=' ' #user
-        PASSWORD=' ' #senha
-        DB_ESTOQUE=' ' #banco estoque 
-        DB_VENDAS=' '        #banco vendas 
-        DB_PUBLICO=' '      #banco publico 
-        DB_FINANCEIRO=' '#banco financeiro 
+        HOST='000.000.000.000'
+        PORT_DB=0000
+        USER='user'
+        PASSWORD='password'
+        DB_ESTOQUE='database_estoque' 
+        DB_VENDAS='database_vendas' 
+        DB_PUBLICO='database_publico' 
+        DB_FINANCEIRO='database_financeiro' 
         
-        HOST_API=' '
-        DB_API=' '#bancoAPI 
-        USER_API=' '   
-        PORT_DB_API=3306 #porta
-         
-        PASSWORD_API=' '
+        #banco api 
+        HOST_API='000.000.000.006'
+        DB_API='integracao' 
+        USER_API='user'
+        PORT_DB_API=3306
+        PASSWORD_API='password'
 
+
+     # consultar https://crontab.guru/ antes de qualquer alteraçao 
+     # reiniciar processos para que seja valida as alteraçoes 
+         IMPORTAR_PEDIDOS = '*/2 * * * *'
+         ENVIAR_ESTOQUE = '*/15 * * * *'
+     #   ENVIAR_PRECO = '*/5 * * * *'
+
+   #chave de acesso para host de imagens
+   API_KEY_IMGBB=''

@@ -1,4 +1,18 @@
 import { conn, db_publico } from "../../database/databaseConfig"
+import { ICad_clie } from "../../interfaces/ICad_clie";
+
+
+type OkPacket = {
+  fieldCount: number,
+  affectedRows: number,
+  insertId: number,
+  serverStatus: number,
+  warningCount: number,
+  message: string,
+  protocol41: boolean,
+  changedRows: number
+}
+
 
 export class ClienteRepository {
     async buscaPorCnpj(cnpj: string) {
@@ -78,57 +92,47 @@ formatTelefone( telefone:string ){
 if( telefone.length === 10 ){
     return telefone.replace(/(\d{2})(\d{4})(\d{4})/ ,'($1) $2-$3');
 }
-
 }
 
-data(){
-    const now = new Date(); // Obtém a data e hora atuais
-    const dia = String(now.getDate()).padStart(2, '0');
-    const mes = String(now.getMonth() + 1).padStart(2, '0');
-    const ano = now.getFullYear();
+ 
 
-    const hora = String(now.getHours()).padStart(2, '0'); // Adiciona um zero à esquerda se for menor que 10
-    const minuto = String(now.getMinutes()).padStart(2, '0'); // Adiciona um zero à esquerda se for menor que 10
-    const segundo = String(now.getSeconds()).padStart(2, '0'); // Adiciona um zero à esquerda se for menor que 10
-
-    const dataHoraInsercao = `${ano}-${mes}-${dia} ${hora}:${minuto}:${segundo}`;
-    const dataInsercao = `${ano}-${mes}-${dia}`; 
-    return {dataHoraInsercao, dataInsercao};
-}
-
-async cadastrarClientErp(json: any) {
-    const buscaDataAtual = this.data().dataInsercao;
+async cadastrarClientErp(json: ICad_clie) :Promise< OkPacket >{
 
     const {
-        nome,
-        numeroDocumento,
-        situacao,
-        telefone,
-        celular,
-        fantasia,
-        tipo,
-        indicadorIe,
-        ie,
-        rg,
-        orgaoEmissor,
-        email,
-        endereco 
+            nome,
+            apelido,
+            fis_jur,
+            cpf,
+            rg,
+            contrib,
+            email_fiscal,
+            email,
+            senha,
+            observacoes,
+            historico,
+            bloq_motivo,
+            obs_bancaria,
+            obs_comercial1,
+            obs_comercial2,
+            obs_comercial3,
+            obs_pessoal,
+            endereco,
+            numero,
+            complemento,
+            bairro,
+            cidade,
+            estado,
+            cep,
+            telefone_res,
+            celular,
+            data_cadastro,
+            consumidor_final,
+            ativo,
+            no_site,
+      
     } = json;
 
-    const  { geral:{ cep, bairro, municipio, uf, numero, complemento,  } }  = endereco; // Corrigido
-
-        const rua = json.endereco.geral.endereco;
-
-    const cpf = this.formatCpf(numeroDocumento);
     
-    let celularClient:string;
-    let cepClient:string;
-
-    cepClient = this.formatCep(cep);
-  
-    
-    
-    const telefoneClient = this.formatTelefone(telefone)
     
         return new Promise(async (resolve, reject) => {
         const sql = `
@@ -154,7 +158,7 @@ async cadastrarClientErp(json: any) {
                 complemento,
                 bairro,
                 cidade,
-                ESTADO,
+                estado,
                 cep,
                 telefone_res,
                 celular,
@@ -164,10 +168,10 @@ async cadastrarClientErp(json: any) {
                 no_site
             ) VALUES (
                 '${nome}',
-                '${nome}',
-                '${tipo}',
+                '${apelido}',
+                '${fis_jur}',
                 '${cpf}',
-                '${ie}',
+                '${rg}',
                 '${email}',
                 '${email}',
                 '',
@@ -179,16 +183,16 @@ async cadastrarClientErp(json: any) {
                 '',
                 '',
                 '',
-                '${rua}',
+                '${endereco}',
                 '${numero}',
                 '${complemento}',
                 '${bairro}',
-                '${municipio}',
-                '${uf}',
-                '${cepClient}',
-                '${telefone}',
+                '${cidade}',
+                '${estado}',
+                '${cep}',
+                '${telefone_res}',
                 '${celular}',
-                '${buscaDataAtual}',
+                '${data_cadastro}',
                 'S',
                 'S',
                 'S'
@@ -197,8 +201,10 @@ async cadastrarClientErp(json: any) {
 
         await conn.query(sql, (err, result) => {
             if (err) {
+                console.log("Erro ao tentar cadastrar o cliente no erp  ", err);
                 reject(err);
             } else {
+                console.log(result)
                 resolve(result);
             }
         });
@@ -207,7 +213,106 @@ async cadastrarClientErp(json: any) {
 
 
 
+async updateClientErp(cliente:ICad_clie, codigo:number ) :Promise<OkPacket>{
 
+   return new Promise( async ( resolve, reject)=>{
+
+        let conditions =[]
+        let values =[]
+
+        if( cliente.data_recad){
+            conditions.push(' data_recad = ? ')
+            values.push(cliente.data_recad)
+            
+        }
+        if(cliente.data_cadastro){
+            conditions.push(' data_cadastro = ? ')
+            values.push(cliente.data_cadastro)
+        }
+         if(cliente.telefone_res){
+            conditions.push(' telefone_res = ? ')
+            values.push(cliente.telefone_res)
+        }
+        if(cliente.cep){
+            conditions.push(' cep = ? ')
+            values.push(cliente.cep)
+        }
+        if(cliente.estado){
+            conditions.push(' estado = ? ')
+            values.push(cliente.estado)
+        }
+        if(cliente.cidade){
+            conditions.push(' cidade = ? ')
+            values.push(cliente.cidade)
+        }
+        if(cliente.bairro){
+            conditions.push(' bairro = ? ')
+            values.push(cliente.bairro)
+        }
+        if(cliente.complemento){
+            conditions.push(' complemento = ? ')
+            values.push(cliente.complemento)
+        }
+        if(cliente.numero){
+            conditions.push(' numero = ? ')
+            values.push(cliente.numero)
+        }
+        if( cliente.endereco){
+            conditions.push(' celular = ? ')
+            values.push(cliente.celular)
+        }
+        if( cliente.nome){
+            conditions.push( ' nome = ? ')
+            values.push(cliente.nome)
+        }
+        if( cliente.apelido){
+            conditions.push(' apelido = ? ');
+            values.push(cliente.apelido);
+        }
+        if( cliente.fis_jur){
+            conditions.push( ' fis_jur = ? ' )
+            values.push(cliente.fis_jur);
+        }
+        if(cliente.cpf){
+             conditions.push( ' cpf = ? ' )
+            values.push(cliente.cpf);
+        }
+        if( cliente.rg){
+             conditions.push( ' rg = ? ' )
+            values.push(cliente.rg);
+        }
+        if(cliente.email_fiscal){
+            conditions.push( ' email_fiscal = ? ');
+            values.push(cliente.email_fiscal );
+        }
+        if(cliente.email){
+            conditions.push( ' email = ? ');
+            values.push(cliente.email );
+        }
+
+                let sql = ` UPDATE ${db_publico}.cad_clie set ` 
+                let whereClause = ' WHERE codigo = ? '
+                values.push( codigo );
+
+            let finalSql = sql;
+                if( conditions.length > 0 ) {   
+                    finalSql = sql + conditions.join( ' , ') + whereClause;
+            }
+
+                await conn.query(finalSql, values ,( err, result )=>{
+                    if( err ){
+                        console.log("Erro ao tentar atualizar o cliente ")
+                        reject(err);
+                    }else{
+                        console.log(result);
+                        resolve(result);
+                    }   
+                })
+   })
+             
+        
+
+}
 
 
 

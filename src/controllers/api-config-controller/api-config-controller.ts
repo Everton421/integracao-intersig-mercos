@@ -1,10 +1,8 @@
 import { Response,Request } from "express";
-import { verificaTokenTarefas } from "../../Middlewares/TokenMiddleware";
 import { conn, database_api } from "../../database/databaseConfig"
-import { pedidoController } from "../pedido-controller/pedido-controller";
+//import { pedidoController } from "../pedido-controller/pedido-controller";
 import {  ApiConfigRepository } from "../../dataAcess/api-config-repository/api-config-repository";
 import { SyncStock } from "../../Services/sync-stock/sync-stock";
-import { SyncORders } from "../../Services/sync-orders/sync-orders";
 var cron = require('node-cron');
 
    
@@ -13,9 +11,9 @@ export class apiController{
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-              private pedido = new pedidoController();
+//              private pedido = new pedidoController();
               private syncStock = new SyncStock();
-              private syncOrders = new SyncORders();
+             // private syncOrders = new SyncORders();
 
 
     async buscaConfig(){
@@ -48,9 +46,8 @@ export class apiController{
            }
       }
 
-
+/*
   async main() {
-        await verificaTokenTarefas();
       
         const tempoPedido = process.env.IMPORTAR_PEDIDOS;
         const tempoEstoque = process.env.ENVIAR_ESTOQUE;
@@ -73,7 +70,7 @@ export class apiController{
           await this.delay(8000);
       
           cron.schedule(tempoPedido, async () => {
-            await this.pedido.buscaPedidosBling(config.vendedor);
+           // await this.pedido.buscaPedidosBling(config.vendedor);
           await this.delay(2000);
             await this.syncOrders.updateBling();
 
@@ -105,5 +102,5 @@ export class apiController{
       
       
     }
-
+*/
 }

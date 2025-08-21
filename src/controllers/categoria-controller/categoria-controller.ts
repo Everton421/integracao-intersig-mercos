@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
-import { SyncCategory } from "../../Services/sync-category/sync-category";
+ import { Request, Response } from "express";
+ import { SyncCategory } from "../../Services/sync-category/sync-category";
 
 export class CategoriaController{
 
@@ -22,4 +22,4 @@ export class CategoriaController{
 
 }    
 
-}
+}  

@@ -1,3 +1,4 @@
+/*
 import axios from "axios";
 import {    database_api } from "../../database/databaseConfig";
 import { NextFunction, Request, Response } from "express";
@@ -51,7 +52,5 @@ export class TokenController{
     } 
    }
     
-
-
-
 }
+*/

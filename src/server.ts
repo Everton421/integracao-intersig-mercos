@@ -1,16 +1,11 @@
 import express,{NextFunction, Request,Response} from 'express';
 import "express-async-errors";
 import cors from 'cors';
-const https = require('https');
-const fs = require('fs');
 import 'dotenv/config';
 import bodyParser from 'body-parser';
 import path from 'path'; 
 
 import { router } from './routes';
-import { conn } from './database/databaseConfig';
-import { apiController } from './controllers/api-config-controller/api-config-controller';
-import { verificaTokenTarefas } from './Middlewares/TokenMiddleware';
 
         const app = express();
 
@@ -35,12 +30,7 @@ import { verificaTokenTarefas } from './Middlewares/TokenMiddleware';
                     })
                 })
 
-                async function tarefas(){ 
-                 const aux = new apiController();
-                const main = await aux.main();
-            }
-
-            tarefas();
+ 
 
                 const PORT_API = process.env.PORT_API; // Porta padrão para HTTPS
 

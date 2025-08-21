@@ -1,4 +1,4 @@
-import { pro_orca } from "./pro_orca"
+import { pro_orca } from "./IPro_orca"
 
 export interface cad_orca{
     COD_SITE:string,

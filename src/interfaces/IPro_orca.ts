@@ -1,4 +1,4 @@
-export interface pro_orca{
+export interface IPro_orca{
 ORCAMENTO:number,
 SEQUENCIA:number, 
 PRODUTO:number,
@@ -20,4 +20,3 @@ FRETE:number,
 IPI:number,
 DESCONTO:number
 }
-	 

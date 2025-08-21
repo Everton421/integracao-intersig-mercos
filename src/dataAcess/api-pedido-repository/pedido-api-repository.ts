@@ -2,15 +2,20 @@ import { conn, conn_api, database_api, db_api, db_publico, db_vendas } from "../
 import { IPedidoApi } from "../../interfaces/IPedidoApi";
 import { DateService } from "../../Services/dateService/date-service"
  
-
+    type dadosInsertPedido={
+         Id:any,
+          codigo_sistema:number,
+           situacao:string,
+            data_insercao:string 
+    }
 
 export class PedidoApiRepository{
 
         dateService = new DateService();
 
-    async validaPedido( id:string ){
+    async finById( id:string ) :Promise< IPedidoApi[]> { 
 
-            const sql = `SELECT * FROM ${database_api}.pedidos where Id_bling = ${id};`
+            const sql = `SELECT * FROM ${database_api}.pedidos where Id = ${id};`
 
         return new Promise(  async (resolve,reject)=>{
             await conn_api.query(sql, ( err ,result)=>{
@@ -48,10 +53,10 @@ export class PedidoApiRepository{
     }
 
 
-    async cadastraPedidoApi( json:{ Id_bling:any, codigo_sistema:number, situacao:string} ){
+    async cadastraPedidoApi( json:{ Id:any, codigo_sistema:number, situacao:string} ){
             return new Promise(  async (resolve, reject)=>{
                 const {
-                    Id_bling,
+                    Id,
                     codigo_sistema,
                     situacao
                 } = json;
@@ -59,7 +64,9 @@ export class PedidoApiRepository{
                 const data = this.dateService.obterDataHoraAtual();
 
                 const sql = 
-                ` INSERT INTO ${database_api}.pedidos values ('${Id_bling}', '${codigo_sistema}', '${data}' , '${situacao}')` 
+                ` INSERT INTO ${database_api}.pedidos ( Id, codigo_sistema, data_insercao, situacao )  values ('${Id}', '${codigo_sistema}', '${data}' , '${situacao}')
+                    ON DUPLICATE KEY UPDATE codigo_sistema = '${codigo_sistema}', data_insercao = '${data}'
+                ` 
                 await conn_api.query( sql,(err, result)=>{
                     if(err){
                         reject(err);
@@ -71,9 +78,9 @@ export class PedidoApiRepository{
     }
 
 
-    async updateBYParam( dados: { Id_bling:any, codigo_sistema:number, situacao:string}){
+    async updateBYParam( dados: Partial< dadosInsertPedido>  ){
 
-        if( !dados.Id_bling ) return console.log(`è necessario informar o id do pedido para atualziar a tabela de pedidos da integracao`) 
+        if( !dados.Id ) return console.log(`è necessario informar o id do pedido para atualziar a tabela de pedidos da integracao`) 
 
          
         return new Promise((resolve, reject )=>{
@@ -90,8 +97,12 @@ export class PedidoApiRepository{
             conditions.push(' situacao = ? ');
             values.push(dados.situacao)
         }
-            const whereClause =' WHERE Id_bling = ? ' 
-            values.push(dados.Id_bling);
+        if(dados.data_insercao ){
+               conditions.push(' data_insercao = ? ');
+            values.push(dados.data_insercao)
+        }
+            const whereClause =' WHERE Id = ? ' 
+            values.push(dados.Id);
 
             let finalSql = sql ;
 
@@ -113,4 +124,20 @@ export class PedidoApiRepository{
 
     }
 
+     async findSincedOrder( id:string ) :Promise< IPedidoApi[]>{
+          const sql = `SELECT  
+                            p.*
+                            FROM ${database_api}.pedidos p
+                                join ${db_vendas}.cad_orca co on co.codigo = p.codigo_sistema
+                            where p.Id = ${id};`
+        return new Promise(  async (resolve,reject)=>{
+            await conn_api.query(sql, ( err ,result)=>{
+                if(err){
+                    reject(err);
+                }else{
+                    resolve(result);
+                }
+            })
+        })
+        }
 }

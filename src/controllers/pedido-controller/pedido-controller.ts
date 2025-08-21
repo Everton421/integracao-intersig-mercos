@@ -1,84 +1,115 @@
-import ConfigApi from "../../Services/api/api";
-import {  PedidoRepository } from "../../dataAcess/pedido-repository/pedido-repository";
+ 
+import { GetOrdersService } from "../../Services/get-orders-service/get-orders-service";
+import { ClienteApiRepository } from "../../dataAcess/api-cliente-repository/cliente-api-repositoryi";
+import { GetClientService } from "../../Services/get-client-service/get-client-service";
+import { ClienteRepository } from "../../dataAcess/cliente-repository/cliente-repositori";
+import { ClienteMapper } from "../../mappers/cliente-mapper";
+import {  PedidoService } from "../../Services/pedido-service/pedido-service";
 import { PedidoApiRepository } from "../../dataAcess/api-pedido-repository/pedido-api-repository";
-import { SyncClient } from "../../Services/sync-client/sync-client";
+import { loggerPedidos, loggerProdutos } from "../../utils/logger-config";  
 
 export class pedidoController{
 
-    private api = new ConfigApi();
-    private pedidoApi = new PedidoApiRepository();
-    private objPedidoErp = new PedidoRepository();
-    private syncClient = new SyncClient();
+    private getOrdersService = new GetOrdersService();
+    private clienteApiRepository = new ClienteApiRepository();
+    private getClientService = new GetClientService();
+    private clienteRepository = new ClienteRepository();
+    private clienteMapper = new ClienteMapper();
+    private pedidoService = new PedidoService();
+    private pedidoApiRepository = new PedidoApiRepository();
 
-
-     delay(ms: number) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+  private   delay(ms: number) {
+        return new Promise(resolve => {
+             console.log( `Aguardando ${ms / 1000} segundos...` ); 
+            setTimeout(resolve, ms) 
+        });
     }
 
+/**
+ * @param filial filial onde será consultado custos dos produtos
+ * @param data data a ser usada para efetuar a requisição, será feita requisições para obter os dados após esta data 
+ */
+async buscaPedidos( filial:any, data :string  ){
 
 
-async buscaPedidosBling( vendedor:number ){
-    
-    await  this.api.configurarApi();
+       let dadosPedidos =  await this.getOrdersService.getORders(data);
+                    console.log("total pedidos a serem processados: ",dadosPedidos.length)
+                     
+                       // console.log( dadosPedidos[0])
+                         for(let i of dadosPedidos ){
+                    
+                            let codigoCliente = 0;
+                            /// verifica se o cliente ja foi recebido
+                            let arrValidApiClient = await this.clienteApiRepository.getByID(i.cliente_id);
+                            let resultClientApi;
 
-        let pagina = 1;
-        let limite = 100;
+                             await this.delay(5000)
+                            // obtem o cadastro do cliente no mercos 
+                            resultClientApi = await this.getClientService.getClient(i.cliente_id);
 
-        while( true ){
-            await this.delay(2000)   
-            let dadosPedidos;
-            try{
-                dadosPedidos = await this.api.config.get('/pedidos/vendas', {
-                    params:{
-                        pagina: pagina,
-                        limite:limite
-                    }
-                });
-            }catch(err) { 
-                    //throw err
-                        console.log(` Erro ao buscar a pagina: ${pagina} de pedidos do bling`, err)
-                    break;
-            }
+                            // transforma os dados para inserir na tabela cad_clie
+                           let mapperClient = this.clienteMapper.cad_clieMapper(resultClientApi);
 
-            const arr = dadosPedidos.data.data
+                                 // verifica se ouve atualzação do cliente.
+                                    if( arrValidApiClient.length > 0 ){
+                                            let client = arrValidApiClient[0];
+                                            console.log(`Verificando possivel atualização do Cliente: [ ${resultClientApi.nome_fantasia}] ` )
+                                            
+                                                    if( new Date(resultClientApi.ultima_alteracao) > new Date(client.data_recad_sistema) ){
+                                                        console.log(`Atualizando Cliente: [ ${resultClientApi.nome_fantasia} ]...`);
+                                                            console.log(   resultClientApi.ultima_alteracao  ," > ", client.data_recad_sistema  )
+                                                            let resultUpdateClient =  await this.clienteRepository.updateClientErp(mapperClient,client.codigo_sistema );
+                                                                
+                                                            if(resultUpdateClient.affectedRows > 0 ){ console.log( "Cliente atualizado com sucesso!") }
 
-                if(!arr || arr.length === 0 )   {
-                    console.log(" Não há mais pedidos a serem importados!")
-                    break;
-                }
+                                                            //update cliente
+                                                    } else{
+                                                        console.log(`Cliente: [ ${resultClientApi.nome_fantasia} ] se encontra atualizado...`);
+                                                    }
+                                                    codigoCliente = client.codigo_sistema;
+                                        }else{      
+                                             console.log(" cadastrando cliente"   );
+                                                let resultInsertClientSistem =   await this.clienteRepository.cadastrarClientErp(mapperClient)
+                                                let resultInsertClientIntegration;
+                                                if(resultInsertClientSistem.insertId > 0 )   {
+                                                            resultInsertClientIntegration = await this.clienteApiRepository.cadastrarClientApi({
+                                                                id: resultClientApi.id,
+                                                                codigoCliente: resultInsertClientSistem.insertId,
+                                                                cpf:resultClientApi.cnpj
+                                                            })
+                                                        }
+                                                    codigoCliente = resultInsertClientSistem.insertId;
+                                                        if(resultInsertClientIntegration &&  resultInsertClientIntegration?.insertId > 0 && resultInsertClientSistem.insertId > 0 ){
+                                                            console.log( console.log(` Cliente: [ ${resultClientApi.nome_fantasia} ] registrado com sucesso !` ));
+                                                        } else {
+                                                            console.log(`Ocorreu um erro ao tentar inserir o cliente: [ ${resultClientApi.nome_fantasia} ] ` )
+                                                            /// pula para o proximo pedido caso der erro na validação do cliente
+                                                            continue;
+                                                        }
+                                      }
+                                        
+                                        console.log("processando pedido para o cliente codigo:", codigoCliente);
+                                        loggerPedidos.info( "processando pedido para o cliente codigo: ", codigoCliente )
+                                      let validOrder  = await this.pedidoApiRepository.findSincedOrder( String(i.id) );
+                                        if( validOrder.length > 0 ){
 
-        for( const data of arr ){
-                try{
-                    let clientPedidoBling = data.contato.id;
-                    let cpfClientBling = data.contato.numeroDocumento;
-                    let idPedidoBling = data.id; 
-                
-            //       inicio validação do cliente 
-                let codigoClientErp  = await this.syncClient.getClient(clientPedidoBling,cpfClientBling ); 
-            //fim da validação do cliente 
-                
-                        // busca pedido completo
-            await this.delay(1000)   
-                  console.log(` Processando pedido ${idPedidoBling}...  `)
-                    const response  = await this.api.config.get(`/pedidos/vendas/${idPedidoBling}`);
-                    const pedidoResponse = response.data.data;
-                
-                        const responseValidacao:any  = await this.pedidoApi.validaPedido(pedidoResponse.id);
-                            if ( responseValidacao.length > 0 ){
-                                const codigPedidoCadastrado = responseValidacao[0].codigo_sistema;
-                                console.log(`Pedido já cadastrado. ID Bling: ${idPedidoBling}, ID Interno: ${codigPedidoCadastrado}`);
-                                continue; 
-                             }else{
-                                console.log(`resgistrando pedido ${idPedidoBling}...` )
-                                await this.objPedidoErp.cadastrarPedido( pedidoResponse, codigoClientErp, vendedor)
-                                console.log(`Pedido ID Bling: ${idPedidoBling} cadastrado com sucesso!`);
-                             }
-                    }catch(err){
-                        console.error(`Ocorreu um erro ao processar o pedido ID: ${data.id}. Pulando para o próximo.`, err);
-                    continue;
-                }
-            }
-        pagina++;
-    }
+                                            if(  new Date(i.ultima_alteracao) > new Date(validOrder[0].data_insercao)   ){
+                                                    console.log(  i.ultima_alteracao  ,"  > " , validOrder[0].data_insercao  );
+                                                    console.log(` atualizando  pedido: ${validOrder[0].codigo_sistema} `)
+                                        loggerPedidos.info( ` atualizando  pedido: ${validOrder[0].codigo_sistema} `)
+
+                                                   const resultUpdateOrder =  await this.pedidoService.update( i, codigoCliente, validOrder[0].codigo_sistema, ) 
+                                            }else{
+                                                    console.log(  i.ultima_alteracao  ,"  <  " ,  validOrder[0].data_insercao   );
+                                                    console.log( `o pedido  ${validOrder[0].codigo_sistema} se encontra atualizado `);
+                                                loggerPedidos.info( `o pedido  ${validOrder[0].codigo_sistema} se encontra atualizado `)
+                                                
+                                                }
+                                          }else{
+                                             await this.pedidoService.insert( codigoCliente ,i  )
+                                        }
+                                    
+                        }
+ 
  }
 }

@@ -1,0 +1,21 @@
+{"level":"info","message":"processando pedido para o cliente codigo: ","timestamp":"2025-59-04 12:59:20"}
+{"level":"info","message":"o pedido  3507 se encontra atualizado ","timestamp":"2025-59-04 12:59:20"}
+{"level":"info","message":"processando pedido para o cliente codigo: ","timestamp":"2025-59-04 12:59:26"}
+{"level":"info","message":"o pedido  3508 se encontra atualizado ","timestamp":"2025-59-04 12:59:26"}
+{"level":"info","message":"processando pedido para o cliente codigo: ","timestamp":"2025-59-04 12:59:31"}
+{"level":"info","message":"o pedido  3510 se encontra atualizado ","timestamp":"2025-59-04 12:59:32"}
+{"level":"info","message":"Info message","timestamp":"2025-00-04 01:00:25"}
+{"level":"error","message":"Error message","timestamp":"2025-00-04 01:00:25"}
+{"level":"warn","message":"Warning message","timestamp":"2025-00-04 01:00:25"}
+{"level":"info","message":"processando pedido para o cliente codigo: ","timestamp":"2025-00-04 01:00:33"}
+{"level":"info","message":"o pedido  3507 se encontra atualizado ","timestamp":"2025-00-04 01:00:33"}
+{"level":"info","message":"processando pedido para o cliente codigo: ","timestamp":"2025-00-04 01:00:38"}
+{"level":"info","message":"o pedido  3508 se encontra atualizado ","timestamp":"2025-00-04 01:00:38"}
+{"level":"info","message":"processando pedido para o cliente codigo: ","timestamp":"2025-00-04 01:00:44"}
+{"level":"info","message":"o pedido  3510 se encontra atualizado ","timestamp":"2025-00-04 01:00:44"}
+{"level":"info","message":"processando pedido para o cliente codigo: ","timestamp":"2025-02-04 01:02:37"}
+{"level":"info","message":"o pedido  3507 se encontra atualizado ","timestamp":"2025-02-04 01:02:37"}
+{"level":"info","message":"processando pedido para o cliente codigo: ","timestamp":"2025-02-04 01:02:42"}
+{"level":"info","message":"o pedido  3508 se encontra atualizado ","timestamp":"2025-02-04 01:02:42"}
+{"level":"info","message":"processando pedido para o cliente codigo: ","timestamp":"2025-02-04 01:02:48"}
+{"level":"info","message":"o pedido  3510 se encontra atualizado ","timestamp":"2025-02-04 01:02:48"}

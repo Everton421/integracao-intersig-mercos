@@ -9,7 +9,7 @@ export class CategoriaApiRepository{
         }
     
     
-        async buscaCategoriasApi( ):Promise<[ { Id_bling:number, descricao:string, codigo_sistema:number, data_envio:string}]>{
+        async buscaCategoriasApi( ):Promise<[ { Id:number, descricao:string, codigo_sistema:number, data_envio:string}]>{
         return new Promise( async (resolve,reject)=>{
             const sql = 
             `SELECT * FROM ${database_api}.categorias ;
@@ -25,7 +25,7 @@ export class CategoriaApiRepository{
         })
     }
     
-        async buscaCategoriaApi( codigo:number):Promise<[ { Id_bling:number, descricao:string, codigo_sistema:number, data_envio:string}]>{
+        async buscaCategoriaApi( codigo:number):Promise<[ { Id:number, descricao:string, codigo_sistema:number, data_envio:string}]>{
         return new Promise( async (resolve,reject)=>{
             const sql = 
             `SELECT * FROM ${database_api}.categorias WHERE codigo_sistema = ? ;
@@ -46,11 +46,11 @@ export class CategoriaApiRepository{
 
             let dataInsercao = this.dateService.obterDataHoraAtual()
             
-            const { id_bling, codigo_sistema , descricao} = value;
+            const { Id, codigo_sistema , descricao} = value;
 
             let descricaoSemAspas = this.formatDescricao(descricao);
 
-             const sql = ` INSERT INTO ${database_api}.categorias VALUES ('${id_bling}','${descricaoSemAspas}','${codigo_sistema}', '${dataInsercao}')` 
+             const sql = ` INSERT INTO ${database_api}.categorias VALUES ('${Id}','${descricaoSemAspas}','${codigo_sistema}', '${dataInsercao}')` 
             
                 await conn_api.query(sql, (err,result)=>{
                     if(err){

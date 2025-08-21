@@ -1,31 +1,32 @@
 import {    conn_api, database_api, db_api, db_publico } from "../../database/databaseConfig";
- 
-export class ClienteApiRepository{
-    data(){
-        const now = new Date(); // Obtém a data e hora atuais
-        const dia = String(now.getDate()).padStart(2, '0');
-        const mes = String(now.getMonth() + 1).padStart(2, '0');
-        const ano = now.getFullYear();
-    
-        const hora = String(now.getHours()).padStart(2, '0'); // Adiciona um zero à esquerda se for menor que 10
-        const minuto = String(now.getMinutes()).padStart(2, '0'); // Adiciona um zero à esquerda se for menor que 10
-        const segundo = String(now.getSeconds()).padStart(2, '0'); // Adiciona um zero à esquerda se for menor que 10
-    
-        const dataHoraInsercao = `${ano}-${mes}-${dia} ${hora}:${minuto}:${segundo}`;
-        const dataInsercao = `${ano}-${mes}-${dia}`; 
-        return {dataHoraInsercao, dataInsercao};
-    }
+import { DateService } from "../../Services/dateService/date-service";
+ type OkPacket = {
+  fieldCount: number,
+  affectedRows: number,
+  insertId: number,
+  serverStatus: number,
+  warningCount: number,
+  message: string,
+  protocol41: boolean,
+  changedRows: number
+}
 
-    async cadastrarClientApi( json:{ id_bling:number, codigoCliente:number, cpf:string } ){
+
+export class ClienteApiRepository{
+
+    private dateService = new DateService();
+
+    async cadastrarClientApi( json:{ id:number, codigoCliente:number, cpf:string } ):Promise<OkPacket>{
         const {
-            id_bling , codigoCliente, cpf
+            id , codigoCliente, cpf
         } = json;
 
-            let dataInsercao:any = this.data().dataHoraInsercao
+            let dataInsercao:any = this.dateService.obterDataHoraAtual();
+
 
         return new Promise( async (resolve, reject )=>{
-                const sql = ` INSERT INTO ${database_api}.clientes  (Id_bling, codigo_sistema, cpf, data_envio) 
-                    values ('${id_bling}', '${codigoCliente}', '${cpf}', '${dataInsercao}' );
+                const sql = ` INSERT INTO ${database_api}.clientes  (Id, codigo_sistema, cpf, data_envio) 
+                    values ('${id}', '${codigoCliente}', '${cpf}', '${dataInsercao}' );
                     
                 `
             await conn_api.query(sql,(err, result)=>{
@@ -41,10 +42,10 @@ export class ClienteApiRepository{
 
     }
 
-        async getClientIntegracao():Promise<[{ Id_bling:number ,codigo_sistema:number, cpf:string,nome:string }]>{
+        async getClientIntegracao():Promise<[{ Id:number ,codigo_sistema:number, cpf:string,nome:string }]>{
             return new Promise( ( resolve, reject ) =>{
                 let sql = ` SELECT 
-                                c.Id_bling,
+                                c.Id,
                                 c.codigo_sistema,
                                 clie.CPF cpf,
                                 clie.NOME as nome 
@@ -63,5 +64,65 @@ export class ClienteApiRepository{
                 })
 
             })
+     
         }
-}    
+
+            /**
+             *  obtem os dados do cliente, faz a relação entre a tabela de clientes da integracao e a tabela do sistema.
+             * @param id id do cliente  a ser filtrado
+             * @returns 
+             */
+        async getByID( id:any ):Promise<[{ Id:number ,codigo_sistema:number, cpf:string,nome:string,data_envio:string, data_recad_sistema:string }]>{
+                    return new Promise( ( resolve, reject ) =>{
+                let sql = ` SELECT 
+                                c.Id,
+                                  clie.CODIGO as codigo_sistema,
+                                clie.CPF cpf,
+                                clie.NOME as nome,
+                                clie.DATA_RECAD AS data_recad_sistema,
+                                c.data_envio
+                                FROM 
+                               ${db_api}.clientes  c
+                               left join ${ db_publico }.cad_clie clie
+                                 on  c.codigo_sistema = clie.CODIGO
+                                 where c.Id = ? 
+                                ` 
+                conn_api.query(sql,id, ( err, result )=>{
+                    if(err){
+                        console.log("  Erro ao consultar o cliente id: ", id);
+                        reject(err)
+                    }else{
+                        resolve(result);
+                    }
+                })
+
+            })
+        }
+         async getByIDAndCpf( id:any , cnpj:string ):Promise<[{ Id:number ,codigo_sistema:number, cpf:string,nome:string }]>{
+                    return new Promise( async ( resolve, reject ) =>{
+                
+                        let sql = ` SELECT 
+                                c.Id,
+                                c.codigo_sistema,
+                                clie.CPF cpf,
+                                clie.NOME as nome 
+                                FROM 
+                               ${db_api}.clientes  c
+                                join ${ db_publico }.cad_clie clie
+                                 on  c.codigo_sistema = clie.CODIGO
+                                 where c.Id = ? and clie.CPF = ? 
+                                ` 
+                                const dados = [ id, cnpj];
+
+        await   conn_api.query(sql,  dados, ( err, result )=>{
+                    if(err){
+                        console.log("  Erro ao consultar o cliente id: ", id);
+                        reject(err)
+                    }else{
+                        resolve(result);
+                    }
+                })
+
+            })
+        }
+    }    

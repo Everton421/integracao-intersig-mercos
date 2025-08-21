@@ -33,11 +33,11 @@ export class CategoriaRepository{
                 })
         })
     }
-    async buscaGrupoIndex():Promise< [ { Id_bling:number, codigo_sistema:number, nome:string } ] >{
+    async buscaGrupoIndex():Promise< [ { Id:number, codigo_sistema:number, nome:string } ] >{
         return new Promise( async (resolve,reject)=>{
             const sql = 
     `  SELECT 
-            itc.Id_bling,
+            itc.Id,
             pg.CODIGO codigo_sistema,
             pg.NOME nome
        from ${db_publico}.cad_pgru pg 

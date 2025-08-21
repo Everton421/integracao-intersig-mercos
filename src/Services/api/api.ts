@@ -1,37 +1,49 @@
 import axios from "axios";
-import { ApiTokenRepository } from "../../dataAcess/api-token-repository/api-token-repository";
-import { conn_api, database_api } from "../../database/databaseConfig";
+//import { ApiTokenRepository } from "../../dataAcess/api-token-repository/api-token-repository";
+//
+//export class ConfigApi {
+//    config: any;
+//
+//    constructor() {
+//        this.configurarApi();
+//    }
+//
+//    async configurarApi() {
+//        try {
+//            const baseUrl = process.env.BASE_URL;
+//
+//            let companyToken =  process.env.COMPANYTOKEN
+//             let applicationToken = process.env.APPLICATIONTOKEN
+//
+//            // Cria a instância do axios com o token
+//            this.config = axios.create({
+//                baseURL: baseUrl,
+//                headers: {
+//                    'Content-Type': 'application/json',
+//                    'ApplicationToken': applicationToken,
+//                    'CompanyToken':companyToken
+//                }
+//            });
+//        } catch (error:any) {
+//            throw new Error(`Erro ao configurar API: ${error.message}`);
+//        }
+//    }
+//
+//
+//}
+//
+//export default ConfigApi;
+//
+         let companyToken =  process.env.COMPANYTOKEN
+        let applicationToken = process.env.APPLICATIONTOKEN
+        const baseUrl = process.env.BASE_URL;
 
-export class ConfigApi {
-    config: any;
 
-    constructor() {
-        this.configurarApi();
-    }
-
-    async configurarApi() {
-        try {
-            const aux = new ApiTokenRepository();
-            const tokenObj: any = await aux.buscaToken(); // Obtém o token usando o método buscaToken()
-            const url_bling = process.env.BASE_URL;
-            const token = tokenObj[0].token; // Obtém o token do objeto retornado
-
-            // Cria a instância do axios com o token
-            this.config = axios.create({
-                baseURL: url_bling,
-                 
-                headers: {
+export const api = axios.create({
+    baseURL:baseUrl,
+        headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'ApplicationToken': applicationToken,
+                    'CompanyToken':companyToken
                 }
-            });
-        } catch (error:any) {
-            throw new Error(`Erro ao configurar API: ${error.message}`);
-        }
-    }
-
-
-
-}
-
-export default ConfigApi;
+})

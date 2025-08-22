@@ -14,6 +14,7 @@ import { CategoriaRepository } from "./dataAcess/categoria-repository/categoria-
 import { ClienteApiRepository } from "./dataAcess/api-cliente-repository/cliente-api-repositoryi";
 import { pedidoController } from "./controllers/pedido-controller/pedido-controller";
 import { SendTablePrice } from "./Services/send-table-price/send-table-price";
+import { CategoriaController } from "./controllers/categoria-controller/categoria-controller";
  
 const router = Router();
 
@@ -45,16 +46,20 @@ router.get('/produtos',  async (req,res) =>{
   const tabelas = await produtoRepository.buscaTabelaDePreco();
 res.render('produtos',{'produtos' : produtos,   'tabelas': tabelas});
  })
+
 //ok 
-
-// router.post('/produtos/sync', new  ProdutoController().postProduto)
-
+ router.post('/produtos/sync', new  ProdutoController().postProduto)
 
 
+///
  router.get('/categorias',  async (req,res)=>{
     const data = await categoryRepository.buscaGrupoIndex()
     res.render('categorias',  { 'categorias' : data})
   })
+
+router.post('/categorias', new CategoriaController().postCategory)
+
+
 
 router.get('/clientes',  async (req,res)=>{
     const data = await clienteApiRepository.getClientIntegracao()

@@ -82,7 +82,7 @@
                     </div>
 
                     <!-- INÍCIO DO FORMULÁRIO -->
-                    <form id="sendSelectedCategoriesForm" action="/api/categorias" method="POST">
+                    <form id="sendSelectedCategoriesForm" action="/categorias" method="POST">
 
                        <div class="action-buttons">
                             <button type="submit" class="btn btn-primary">
@@ -114,7 +114,7 @@
                                                        value="<%= item.codigo_sistema %>">
                                             </th>
                                             <th scope="row">
-                                                <% if(item.Id_bling !== null ){ %>
+                                                <% if(item.Id !== null ){ %>
                                                     <span data-feather="check-circle" style="color: green;"></span>
                                                 <% } else { %>
                                                     <span data-feather="x-circle" style="color: red;"></span>

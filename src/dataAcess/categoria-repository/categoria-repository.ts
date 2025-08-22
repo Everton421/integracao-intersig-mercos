@@ -1,4 +1,5 @@
 import { conn, db_api, db_publico } from "../../database/databaseConfig";
+import { grupo_sistema } from "../../interfaces/IGrupo-sistema";
 
 export class CategoriaRepository{
 
@@ -19,7 +20,7 @@ export class CategoriaRepository{
     }
 
 
-    async buscaGrupo( grupo:number ){
+    async buscaGrupo( grupo:number ):Promise < grupo_sistema[]> {
         return new Promise( async (resolve,reject)=>{
             const sql = 
             `SELECT * FROM ${db_publico}.cad_pgru WHERE CODIGO = ?;

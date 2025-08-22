@@ -1,25 +1,25 @@
  import { Request, Response } from "express";
- import { SyncCategory } from "../../Services/sync-category/sync-category";
+ // import { SyncCategory } 
 
 export class CategoriaController{
 
 
-   async postCategory( req:Request, res:Response ){
-   
-    const syncCategory = new SyncCategory();
+    async postCategory( req:Request, res:Response ){
+        console.log(req.body)
+        const syncCategory = new SyncCategory();
 
-        const arrSelecionados = req.body.categorias
-    if( Array.isArray(arrSelecionados) ){
-        for( const i of  arrSelecionados ){
+        
+            const arrSelecionados = req.body.categorias
+            
+        if( Array.isArray(arrSelecionados) ){
+            for( const i of  arrSelecionados ){
 
-               let result = await   syncCategory.validaCatedoria(Number(i));
-               if( result && result.msg ){
-               res.status(200).json({ msg:result.msg})
-               } 
+                let result = await   syncCategory.validaCatedoria(Number(i));
+                if( result && result.msg ){
+                res.status(200).json({ msg:result.msg})
+                } 
+            }
         }
-
-    }
-
-}    
+    }    
 
 }  
